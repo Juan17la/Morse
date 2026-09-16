@@ -33,6 +33,7 @@ import androidx.wear.compose.material.rememberPickerState
 import com.morse.wearos.R
 import com.morse.wearos.di.containerViewModel
 import com.morse.wearos.ui.components.errorMessage
+import com.morse.wearos.ui.components.isCompactScreen
 import com.morse.wearos.domain.ConnectionState
 import com.morse.wearos.domain.GroupConfig
 
@@ -98,14 +99,17 @@ fun JoinScreen(
 
 @Composable
 private fun CodePickers(pickers: List<PickerState>) {
+    val compact = isCompactScreen()
+    val pickerHeight = if (compact) 66.dp else 84.dp
+    val digitStyle = if (compact) MaterialTheme.typography.title1 else MaterialTheme.typography.display3
     Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
         pickers.forEachIndexed { index, state ->
             Picker(
                 state = state,
                 contentDescription = stringResource(R.string.join_digit_description, index + 1),
-                modifier = Modifier.size(width = 32.dp, height = 84.dp),
+                modifier = Modifier.size(width = 32.dp, height = pickerHeight),
             ) { option ->
-                Text(text = option.toString(), style = MaterialTheme.typography.display3)
+                Text(text = option.toString(), style = digitStyle)
             }
         }
     }

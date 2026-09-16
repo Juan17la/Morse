@@ -14,9 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.Chip
@@ -34,6 +36,7 @@ import androidx.wear.compose.material.VignettePosition
 import com.morse.wearos.R
 import com.morse.wearos.di.containerViewModel
 import com.morse.wearos.ui.components.errorMessage
+import com.morse.wearos.ui.components.isCompactScreen
 import com.morse.wearos.domain.ConnectionState
 import com.morse.wearos.domain.GroupConfig
 import com.morse.wearos.domain.Member
@@ -46,14 +49,14 @@ fun GroupScreen(
     viewModel: GroupViewModel = containerViewModel { GroupViewModel(it.groupSession) },
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val listState = rememberScalingLazyListState()
+    val listState = rememberScalingLazyListState(initialCenterItemIndex = 0)
 
     Scaffold(
         timeText = { TimeText() },
         vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
         positionIndicator = { PositionIndicator(scalingLazyListState = listState) },
     ) {
-        ScalingLazyColumn(state = listState) {
+        ScalingLazyColumn(state = listState, autoCentering = AutoCenteringParams(itemIndex = 0)) {
             item {
                 AccessCodeHeader(code = state.group?.code, connection = state.state)
             }
@@ -87,8 +90,8 @@ fun GroupScreen(
                 item {
                     Chip(
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("${last.senderName} → ${last.word}") },
-                        secondaryLabel = { Text(last.morse, fontFamily = FontFamily.Monospace) },
+                        label = { Text("${last.senderName} → ${last.word}", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                        secondaryLabel = { Text(last.morse, fontFamily = FontFamily.Monospace, maxLines = 1, overflow = TextOverflow.Ellipsis) },
                         colors = ChipDefaults.secondaryChipColors(),
                         onClick = onOpenLastMessage,
                     )
@@ -139,9 +142,10 @@ private fun AccessCodeHeader(code: String?, connection: ConnectionState) {
         )
         Text(
             text = code?.toList()?.joinToString(" ") ?: "- - - -",
-            style = MaterialTheme.typography.display2,
+            style = if (isCompactScreen()) MaterialTheme.typography.display3 else MaterialTheme.typography.display2,
             fontFamily = FontFamily.Monospace,
             letterSpacing = 2.sp,
+            maxLines = 1,
             color = if (connection == ConnectionState.Connected) MaterialTheme.colors.primary else MaterialTheme.colors.onSurfaceVariant,
         )
     }
@@ -155,7 +159,7 @@ private fun MemberChip(member: Member, isSelf: Boolean) {
     )
     Chip(
         modifier = Modifier.fillMaxWidth(),
-        label = { Text(member.name) },
+        label = { Text(member.name, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         secondaryLabel = if (tags.isEmpty()) null else ({ Text(tags.joinToString(" · ")) }),
         icon = {
             Icon(

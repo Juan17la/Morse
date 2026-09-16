@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -64,8 +65,8 @@ fun SendScreen(
 private fun SendChip(word: String, enabled: Boolean, primary: Boolean, onClick: () -> Unit) {
     Chip(
         modifier = Modifier.fillMaxWidth(),
-        label = { Text(word) },
-        secondaryLabel = { Text(MorseCodec.encode(word), fontFamily = FontFamily.Monospace) },
+        label = { Text(word, maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        secondaryLabel = { Text(MorseCodec.encode(word), fontFamily = FontFamily.Monospace, maxLines = 1, overflow = TextOverflow.Ellipsis) },
         colors = if (primary) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
         enabled = enabled,
         onClick = onClick,
