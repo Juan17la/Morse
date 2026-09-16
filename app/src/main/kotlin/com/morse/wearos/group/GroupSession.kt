@@ -59,6 +59,9 @@ class GroupSession(
     var selfId: String? = null
         private set
 
+    var isHost: Boolean = false
+        private set
+
     fun createGroupAsync() {
         scope.launch { createGroup() }
     }
@@ -67,6 +70,7 @@ class GroupSession(
         val t = attachTransport()
         val self = identity.self(isHost = true)
         selfId = self.id
+        isHost = true
         runCatching { t.createGroup(self) }
             .onSuccess { code -> _group.update { GroupInfo(code, t.members.value) } }
             .onFailure { fail(it) }
@@ -76,6 +80,7 @@ class GroupSession(
         val t = attachTransport()
         val self = identity.self(isHost = false)
         selfId = self.id
+        isHost = false
         _group.value = GroupInfo(code, emptyList())
         runCatching { t.joinGroup(code, self) }.onFailure { fail(it) }
     }

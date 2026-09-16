@@ -31,12 +31,14 @@ import com.morse.wearos.ui.permissions.rememberWifiDirectPermissionRequest
 @Composable
 fun HomeScreen(
     onGroupCreated: () -> Unit,
+    onOpenGroup: () -> Unit,
     onJoinGroup: () -> Unit,
     onWords: () -> Unit,
     onSettings: () -> Unit,
     viewModel: HomeViewModel = containerViewModel { HomeViewModel(it.groupSession, it.settingsRepository) },
 ) {
     val transportMode by viewModel.transportMode.collectAsStateWithLifecycle()
+    val activeGroupCode by viewModel.activeGroupCode.collectAsStateWithLifecycle()
     val listState = rememberScalingLazyListState()
     var permissionDenied by remember { mutableStateOf(false) }
     var pendingAction by remember { mutableStateOf<(() -> Unit)?>(null) }
@@ -62,11 +64,22 @@ fun HomeScreen(
     ) {
         ScalingLazyColumn(state = listState) {
             item { ListHeader { Text(stringResource(R.string.app_name)) } }
+            activeGroupCode?.let { code ->
+                item {
+                    Chip(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(stringResource(R.string.home_current_group)) },
+                        secondaryLabel = { Text(stringResource(R.string.home_current_group_code, code)) },
+                        colors = ChipDefaults.primaryChipColors(),
+                        onClick = onOpenGroup,
+                    )
+                }
+            }
             item {
                 Chip(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text(stringResource(R.string.home_create_group)) },
-                    colors = ChipDefaults.primaryChipColors(),
+                    colors = if (activeGroupCode == null) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
                     onClick = { guarded { viewModel.createGroup(); onGroupCreated() } },
                 )
             }

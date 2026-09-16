@@ -2,6 +2,8 @@
 <resources>
     <string name="app_name">Morse</string>
 
+    <string name="home_current_group">Current group</string>
+    <string name="home_current_group_code">Code %1$s</string>
     <string name="home_create_group">Create group</string>
     <string name="home_join_group">Join group</string>
     <string name="home_my_words">My words</string>

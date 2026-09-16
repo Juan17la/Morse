@@ -60,13 +60,21 @@ fun GroupScreen(
 
             when (val connection = state.state) {
                 is ConnectionState.Error -> {
-                    item { Text(errorMessage(connection), textAlign = TextAlign.Center) }
                     item {
-                        Chip(
-                            modifier = Modifier.fillMaxWidth(),
-                            label = { Text(stringResource(R.string.action_retry)) },
-                            onClick = viewModel::retryCreate,
+                        Text(
+                            text = errorMessage(connection),
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colors.error,
                         )
+                    }
+                    if (state.isHost) {
+                        item {
+                            Chip(
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text(stringResource(R.string.action_retry)) },
+                                onClick = viewModel::retryCreate,
+                            )
+                        }
                     }
                 }
                 ConnectionState.Creating, ConnectionState.Joining -> {

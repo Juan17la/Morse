@@ -36,6 +36,7 @@ fun MorseNavHost() {
         composable(Routes.HOME) {
             HomeScreen(
                 onGroupCreated = { navController.navigate(Routes.GROUP) },
+                onOpenGroup = { navController.navigate(Routes.GROUP) },
                 onJoinGroup = { navController.navigate(Routes.JOIN) },
                 onWords = { navController.navigate(Routes.WORDS) },
                 onSettings = { navController.navigate(Routes.SETTINGS) },

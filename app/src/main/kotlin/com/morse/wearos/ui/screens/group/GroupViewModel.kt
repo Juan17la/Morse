@@ -17,6 +17,7 @@ data class GroupUiState(
     val group: GroupInfo? = null,
     val lastMessage: MorseMessage? = null,
     val selfId: String? = null,
+    val isHost: Boolean = false,
 )
 
 class GroupViewModel(private val session: GroupSession) : ViewModel() {
@@ -26,7 +27,7 @@ class GroupViewModel(private val session: GroupSession) : ViewModel() {
         session.group,
         session.lastMessage,
     ) { state, group, last ->
-        GroupUiState(state, group, last, session.selfId)
+        GroupUiState(state, group, last, session.selfId, session.isHost)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GroupUiState())
 
     fun retryCreate() = session.createGroupAsync()
