@@ -35,10 +35,7 @@ fun MorseNavHost() {
     SwipeDismissableNavHost(navController = navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) {
             HomeScreen(
-                onCreateGroup = {
-                    session.createGroupAsync()
-                    navController.navigate(Routes.GROUP)
-                },
+                onGroupCreated = { navController.navigate(Routes.GROUP) },
                 onJoinGroup = { navController.navigate(Routes.JOIN) },
                 onWords = { navController.navigate(Routes.WORDS) },
                 onSettings = { navController.navigate(Routes.SETTINGS) },

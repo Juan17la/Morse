@@ -8,6 +8,10 @@
     <string name="action_cancel">Cancelar</string>
     <string name="action_delete">Eliminar</string>
     <string name="action_retry">Reintentar</string>
+    <string name="action_ok">Aceptar</string>
+
+    <string name="permission_wifi_title">Permiso necesario</string>
+    <string name="permission_wifi_rationale">Wi-Fi Direct necesita el permiso de dispositivos cercanos para encontrar otros relojes.</string>
 
     <string name="group_access_code">Código de acceso</string>
     <string name="group_members">Miembros %1$d / %2$d</string>

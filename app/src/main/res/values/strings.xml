@@ -10,6 +10,10 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_delete">Delete</string>
     <string name="action_retry">Retry</string>
+    <string name="action_ok">OK</string>
+
+    <string name="permission_wifi_title">Permission needed</string>
+    <string name="permission_wifi_rationale">Wi-Fi Direct needs the nearby devices permission to find other watches.</string>
 
     <string name="group_access_code">Access code</string>
     <string name="group_members">Members %1$d / %2$d</string>

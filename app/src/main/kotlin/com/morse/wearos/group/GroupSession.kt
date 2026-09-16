@@ -1,5 +1,6 @@
 package com.morse.wearos.group
 
+import android.util.Log
 import com.morse.wearos.core.haptics.HapticPlayer
 import com.morse.wearos.core.morse.MorseCodec
 import com.morse.wearos.data.IdentityRepository
@@ -24,6 +25,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
+
+private const val TAG = "GroupSession"
 
 sealed interface SessionEvent {
     data class MessageReceived(val message: MorseMessage) : SessionEvent
@@ -108,7 +111,9 @@ class GroupSession(
 
     private suspend fun attachTransport(): GroupTransport {
         leave()
-        val t = transportFactory.create(settings.currentTransportMode())
+        val mode = settings.currentTransportMode()
+        Log.d(TAG, "attaching transport for mode $mode")
+        val t = transportFactory.create(mode)
         transport = t
         collectors = listOf(
             scope.launch { t.state.collect { _state.value = it } },

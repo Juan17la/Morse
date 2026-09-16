@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
@@ -92,7 +92,7 @@ fun GroupScreen(
                     Chip(
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text(stringResource(R.string.group_send)) },
-                        icon = { Icon(Icons.Filled.Send, contentDescription = null) },
+                        icon = { Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null) },
                         colors = ChipDefaults.primaryChipColors(),
                         onClick = onSend,
                     )
