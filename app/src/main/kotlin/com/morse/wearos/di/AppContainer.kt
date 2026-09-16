@@ -20,7 +20,7 @@ class AppContainer(private val appContext: Context) {
     val wordsRepository: WordsRepository by lazy { WordsRepository(appContext) }
     val identityRepository: IdentityRepository by lazy { IdentityRepository(appContext) }
     val settingsRepository: SettingsRepository by lazy { SettingsRepository(appContext) }
-    val transportFactory: TransportFactory by lazy { TransportFactory(appContext) }
+    val transportFactory: TransportFactory by lazy { TransportFactory(appContext, settingsRepository) }
     val groupSession: GroupSession by lazy {
         GroupSession(transportFactory, identityRepository, settingsRepository, hapticPlayer)
     }
