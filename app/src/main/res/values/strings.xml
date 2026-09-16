@@ -23,6 +23,14 @@
     <string name="join_connecting">Connecting…</string>
     <string name="join_digit_description">Digit %1$d</string>
 
+    <string name="send_title">Send</string>
+    <string name="send_not_connected">Join a group first</string>
+    <string name="send_custom_header">My words</string>
+
+    <string name="incoming_from">From %1$s</string>
+    <string name="incoming_replay">Replay</string>
+    <string name="incoming_empty">No messages yet</string>
+
     <string name="word_yes">Yes</string>
     <string name="word_no">No</string>
     <string name="word_maybe">Maybe</string>

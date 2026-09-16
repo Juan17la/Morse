@@ -21,6 +21,14 @@
     <string name="join_connecting">Conectando…</string>
     <string name="join_digit_description">Dígito %1$d</string>
 
+    <string name="send_title">Enviar</string>
+    <string name="send_not_connected">Únete a un grupo primero</string>
+    <string name="send_custom_header">Mis palabras</string>
+
+    <string name="incoming_from">De %1$s</string>
+    <string name="incoming_replay">Repetir</string>
+    <string name="incoming_empty">Aún no hay mensajes</string>
+
     <string name="word_yes">Sí</string>
     <string name="word_no">No</string>
     <string name="word_maybe">Quizás</string>

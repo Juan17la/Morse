@@ -1,14 +1,17 @@
 package com.morse.wearos.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.morse.wearos.di.appContainer
-import com.morse.wearos.ui.components.PlaceholderScreen
+import com.morse.wearos.group.SessionEvent
 import com.morse.wearos.ui.screens.group.GroupScreen
 import com.morse.wearos.ui.screens.home.HomeScreen
+import com.morse.wearos.ui.screens.incoming.IncomingScreen
 import com.morse.wearos.ui.screens.join.JoinScreen
+import com.morse.wearos.ui.screens.send.SendScreen
 import com.morse.wearos.ui.screens.settings.SettingsScreen
 import com.morse.wearos.ui.screens.words.WordsScreen
 
@@ -16,6 +19,18 @@ import com.morse.wearos.ui.screens.words.WordsScreen
 fun MorseNavHost() {
     val navController = rememberSwipeDismissableNavController()
     val session = appContainer().groupSession
+
+    LaunchedEffect(session) {
+        session.events.collect { event ->
+            when (event) {
+                is SessionEvent.MessageReceived -> {
+                    if (navController.currentDestination?.route != Routes.INCOMING) {
+                        navController.navigate(Routes.INCOMING) { launchSingleTop = true }
+                    }
+                }
+            }
+        }
+    }
 
     SwipeDismissableNavHost(navController = navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) {
@@ -45,8 +60,10 @@ fun MorseNavHost() {
                 onLeft = { navController.popBackStack(Routes.HOME, inclusive = false) },
             )
         }
-        composable(Routes.SEND) { PlaceholderScreen("Send") }
-        composable(Routes.INCOMING) { PlaceholderScreen("Incoming") }
+        composable(Routes.SEND) {
+            SendScreen(onSent = { navController.popBackStack() })
+        }
+        composable(Routes.INCOMING) { IncomingScreen() }
         composable(Routes.WORDS) { WordsScreen() }
         composable(Routes.SETTINGS) { SettingsScreen() }
     }
