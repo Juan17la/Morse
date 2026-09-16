@@ -4,4 +4,20 @@
     <string name="home_join_group">Unirse a grupo</string>
     <string name="home_my_words">Mis palabras</string>
     <string name="home_settings">Ajustes</string>
+
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_delete">Eliminar</string>
+
+    <string name="word_yes">Sí</string>
+    <string name="word_no">No</string>
+    <string name="word_maybe">Quizás</string>
+    <string name="word_im_here">Aquí estoy</string>
+    <string name="word_wait">Espera</string>
+
+    <string name="words_title">Mis palabras</string>
+    <string name="words_add">Agregar palabra</string>
+    <string name="words_input_label">Nueva palabra</string>
+    <string name="words_empty">Aún no hay palabras personalizadas</string>
+    <string name="words_defaults_header">Predeterminadas</string>
+    <string name="words_delete_title">¿Eliminar \"%1$s\"?</string>
 </resources>

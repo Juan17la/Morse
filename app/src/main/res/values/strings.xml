@@ -6,4 +6,20 @@
     <string name="home_join_group">Join group</string>
     <string name="home_my_words">My words</string>
     <string name="home_settings">Settings</string>
+
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+
+    <string name="word_yes">Yes</string>
+    <string name="word_no">No</string>
+    <string name="word_maybe">Maybe</string>
+    <string name="word_im_here">I\'m here</string>
+    <string name="word_wait">Wait</string>
+
+    <string name="words_title">My words</string>
+    <string name="words_add">Add word</string>
+    <string name="words_input_label">New word</string>
+    <string name="words_empty">No custom words yet</string>
+    <string name="words_defaults_header">Defaults</string>
+    <string name="words_delete_title">Delete \"%1$s\"?</string>
 </resources>

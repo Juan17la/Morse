@@ -6,6 +6,7 @@ import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.morse.wearos.ui.components.PlaceholderScreen
 import com.morse.wearos.ui.screens.home.HomeScreen
+import com.morse.wearos.ui.screens.words.WordsScreen
 
 @Composable
 fun MorseNavHost() {
@@ -24,7 +25,7 @@ fun MorseNavHost() {
         composable(Routes.GROUP) { PlaceholderScreen("Group") }
         composable(Routes.SEND) { PlaceholderScreen("Send") }
         composable(Routes.INCOMING) { PlaceholderScreen("Incoming") }
-        composable(Routes.WORDS) { PlaceholderScreen("Words") }
+        composable(Routes.WORDS) { WordsScreen() }
         composable(Routes.SETTINGS) { PlaceholderScreen("Settings") }
     }
 }

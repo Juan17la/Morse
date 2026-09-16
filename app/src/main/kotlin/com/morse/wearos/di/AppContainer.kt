@@ -9,9 +9,11 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.morse.wearos.MorseApp
 import com.morse.wearos.core.haptics.HapticPlayer
+import com.morse.wearos.data.WordsRepository
 
 class AppContainer(private val appContext: Context) {
     val hapticPlayer: HapticPlayer by lazy { HapticPlayer(appContext) }
+    val wordsRepository: WordsRepository by lazy { WordsRepository(appContext) }
 }
 
 @Composable
