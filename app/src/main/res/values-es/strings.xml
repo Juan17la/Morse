@@ -20,4 +20,17 @@
     <string name="words_empty">Aún no hay palabras personalizadas</string>
     <string name="words_defaults_header">Predeterminadas</string>
     <string name="words_delete_title">¿Eliminar \"%1$s\"?</string>
+
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_name">Mi nombre</string>
+    <string name="settings_name_input_label">Tu nombre</string>
+    <string name="settings_name_reset">Usar nombre del dispositivo</string>
+    <string name="settings_transport_header">Conexión</string>
+    <string name="transport_simulated">Simulada</string>
+    <string name="transport_lan">LAN / emulador</string>
+    <string name="transport_wifi_direct">Wi-Fi Direct</string>
+    <string name="settings_lan_host">Dirección del host</string>
+    <string name="settings_lan_host_input_label">IP del host</string>
+    <string name="settings_diagnostics_header">Diagnóstico</string>
+    <string name="settings_test_vibration">Probar vibración (SOS)</string>
 </resources>

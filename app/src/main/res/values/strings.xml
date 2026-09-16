@@ -22,4 +22,17 @@
     <string name="words_empty">No custom words yet</string>
     <string name="words_defaults_header">Defaults</string>
     <string name="words_delete_title">Delete \"%1$s\"?</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_name">My name</string>
+    <string name="settings_name_input_label">Your name</string>
+    <string name="settings_name_reset">Use device name</string>
+    <string name="settings_transport_header">Connection</string>
+    <string name="transport_simulated">Simulated</string>
+    <string name="transport_lan">LAN / emulator</string>
+    <string name="transport_wifi_direct">Wi-Fi Direct</string>
+    <string name="settings_lan_host">Host address</string>
+    <string name="settings_lan_host_input_label">Host IP address</string>
+    <string name="settings_diagnostics_header">Diagnostics</string>
+    <string name="settings_test_vibration">Test vibration (SOS)</string>
 </resources>
