@@ -29,6 +29,14 @@
     <string name="incoming_replay">Repetir</string>
     <string name="incoming_empty">Aún no hay mensajes</string>
 
+    <string name="error_wrong_code">Código de acceso incorrecto</string>
+    <string name="error_group_full">El grupo está lleno</string>
+    <string name="error_host_not_found">No se encontró un grupo con ese código</string>
+    <string name="error_connection_lost">Conexión perdida</string>
+    <string name="error_not_supported">No compatible con este dispositivo</string>
+    <string name="error_permission_denied">Permiso denegado</string>
+    <string name="error_unknown">Algo salió mal</string>
+
     <string name="word_yes">Sí</string>
     <string name="word_no">No</string>
     <string name="word_maybe">Quizás</string>

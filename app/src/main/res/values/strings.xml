@@ -31,6 +31,14 @@
     <string name="incoming_replay">Replay</string>
     <string name="incoming_empty">No messages yet</string>
 
+    <string name="error_wrong_code">Wrong access code</string>
+    <string name="error_group_full">The group is full</string>
+    <string name="error_host_not_found">No group found with that code</string>
+    <string name="error_connection_lost">Connection lost</string>
+    <string name="error_not_supported">Not supported on this device</string>
+    <string name="error_permission_denied">Permission denied</string>
+    <string name="error_unknown">Something went wrong</string>
+
     <string name="word_yes">Yes</string>
     <string name="word_no">No</string>
     <string name="word_maybe">Maybe</string>

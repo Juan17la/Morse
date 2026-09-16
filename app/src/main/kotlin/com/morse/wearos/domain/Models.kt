@@ -29,10 +29,20 @@ data class MorseMessage(
     val timestampMs: Long,
 )
 
+enum class TransportError {
+    WRONG_CODE,
+    GROUP_FULL,
+    HOST_NOT_FOUND,
+    CONNECTION_LOST,
+    NOT_SUPPORTED,
+    PERMISSION_DENIED,
+    UNKNOWN,
+}
+
 sealed interface ConnectionState {
     data object Idle : ConnectionState
     data object Creating : ConnectionState
     data object Joining : ConnectionState
     data object Connected : ConnectionState
-    data class Error(val message: String) : ConnectionState
+    data class Error(val error: TransportError, val detail: String? = null) : ConnectionState
 }

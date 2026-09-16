@@ -7,7 +7,9 @@ import com.morse.wearos.data.SettingsRepository
 import com.morse.wearos.domain.ConnectionState
 import com.morse.wearos.domain.GroupInfo
 import com.morse.wearos.domain.MorseMessage
+import com.morse.wearos.domain.TransportError
 import com.morse.wearos.transport.GroupTransport
+import com.morse.wearos.transport.TransportException
 import com.morse.wearos.transport.TransportFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -125,6 +127,9 @@ class GroupSession(
     }
 
     private fun fail(error: Throwable) {
-        _state.value = ConnectionState.Error(error.message ?: error::class.simpleName ?: "error")
+        _state.value = when (error) {
+            is TransportException -> ConnectionState.Error(error.error)
+            else -> ConnectionState.Error(TransportError.UNKNOWN, error.message ?: error::class.simpleName)
+        }
     }
 }

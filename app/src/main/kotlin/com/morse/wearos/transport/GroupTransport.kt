@@ -3,6 +3,7 @@ package com.morse.wearos.transport
 import com.morse.wearos.domain.ConnectionState
 import com.morse.wearos.domain.Member
 import com.morse.wearos.domain.MorseMessage
+import com.morse.wearos.domain.TransportError
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -25,4 +26,4 @@ interface GroupTransport {
     suspend fun leave()
 }
 
-class TransportException(message: String) : Exception(message)
+class TransportException(val error: TransportError, detail: String? = null) : Exception(detail ?: error.name)

@@ -32,6 +32,7 @@ import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.rememberPickerState
 import com.morse.wearos.R
 import com.morse.wearos.di.containerViewModel
+import com.morse.wearos.ui.components.errorMessage
 import com.morse.wearos.domain.ConnectionState
 import com.morse.wearos.domain.GroupConfig
 
@@ -67,7 +68,7 @@ fun JoinScreen(
                 }
                 requested && connection is ConnectionState.Error -> {
                     Text(
-                        text = (connection as ConnectionState.Error).message,
+                        text = errorMessage(connection as ConnectionState.Error),
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colors.error,
                     )

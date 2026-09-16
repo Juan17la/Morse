@@ -33,6 +33,7 @@ import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
 import com.morse.wearos.R
 import com.morse.wearos.di.containerViewModel
+import com.morse.wearos.ui.components.errorMessage
 import com.morse.wearos.domain.ConnectionState
 import com.morse.wearos.domain.GroupConfig
 import com.morse.wearos.domain.Member
@@ -59,7 +60,7 @@ fun GroupScreen(
 
             when (val connection = state.state) {
                 is ConnectionState.Error -> {
-                    item { Text(connection.message, textAlign = TextAlign.Center) }
+                    item { Text(errorMessage(connection), textAlign = TextAlign.Center) }
                     item {
                         Chip(
                             modifier = Modifier.fillMaxWidth(),
