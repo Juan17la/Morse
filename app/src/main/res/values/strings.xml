@@ -9,6 +9,19 @@
 
     <string name="action_cancel">Cancel</string>
     <string name="action_delete">Delete</string>
+    <string name="action_retry">Retry</string>
+
+    <string name="group_access_code">Access code</string>
+    <string name="group_members">Members %1$d / %2$d</string>
+    <string name="group_member_host">Host</string>
+    <string name="group_member_you">You</string>
+    <string name="group_send">Send message</string>
+    <string name="group_leave">Leave group</string>
+
+    <string name="join_title">Enter access code</string>
+    <string name="join_action">Join</string>
+    <string name="join_connecting">Connecting…</string>
+    <string name="join_digit_description">Digit %1$d</string>
 
     <string name="word_yes">Yes</string>
     <string name="word_no">No</string>

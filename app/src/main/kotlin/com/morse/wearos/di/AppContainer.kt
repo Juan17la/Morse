@@ -12,12 +12,18 @@ import com.morse.wearos.core.haptics.HapticPlayer
 import com.morse.wearos.data.IdentityRepository
 import com.morse.wearos.data.SettingsRepository
 import com.morse.wearos.data.WordsRepository
+import com.morse.wearos.group.GroupSession
+import com.morse.wearos.transport.TransportFactory
 
 class AppContainer(private val appContext: Context) {
     val hapticPlayer: HapticPlayer by lazy { HapticPlayer(appContext) }
     val wordsRepository: WordsRepository by lazy { WordsRepository(appContext) }
     val identityRepository: IdentityRepository by lazy { IdentityRepository(appContext) }
     val settingsRepository: SettingsRepository by lazy { SettingsRepository(appContext) }
+    val transportFactory: TransportFactory by lazy { TransportFactory(appContext) }
+    val groupSession: GroupSession by lazy {
+        GroupSession(transportFactory, identityRepository, settingsRepository, hapticPlayer)
+    }
 }
 
 @Composable
