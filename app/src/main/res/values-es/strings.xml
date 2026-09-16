@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_create_group">Crear grupo</string>
+    <string name="home_join_group">Unirse a grupo</string>
+    <string name="home_my_words">Mis palabras</string>
+    <string name="home_settings">Ajustes</string>
+</resources>

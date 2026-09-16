@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Morse</string>
+
+    <string name="home_create_group">Create group</string>
+    <string name="home_join_group">Join group</string>
+    <string name="home_my_words">My words</string>
+    <string name="home_settings">Settings</string>
 </resources>
