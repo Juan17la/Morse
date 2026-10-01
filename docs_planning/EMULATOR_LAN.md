@@ -54,7 +54,41 @@ per host a second emulator can reach the first one.
 Because two emulators report the same device name, set a different name on each one
 (Settings → My name, up to 20 characters) so the sender is recognizable.
 
-## 3. Wi-Fi Direct — real watches only
+## 3. PC simulator — one emulator, real TCP
+
+`tools/morse_sim.py` (Python 3, stdlib only) is a group host on your PC with bot members
+("Ana" hosts, "Luis" joins). It speaks the real protocol, so the full build's socket layer,
+access-code checks and smart replies are exercised for real.
+
+```sh
+python3 tools/morse_sim.py            # prints the access code
+python3 tools/morse_sim.py --code 1234 --bots Ana   # 2 free slots for emulators
+python3 tools/morse_sim.py --selftest
+```
+
+On the emulator: Settings → Connection → **LAN / emulator**, host `10.0.2.2` (default), then
+**Join group** with the printed code. No `adb forward` is needed: `10.0.2.2` is the PC itself.
+Every message you send gets a bot reply 2–4 s later. Type `luis: on my way` in the terminal to
+make a bot speak, `/members` to list the group, `/quit` to end it. Stop it before running the
+unit tests: `SocketGroupTransportTest` binds the same port 8765.
+
+## 4. AI features (Gemini free tier)
+
+**Dictate** (Send screen) condenses a spoken sentence to 20 characters or fewer, because each
+haptic letter costs about a second. **Reply** (Incoming screen) suggests three one-tap answers
+based on the last 10 group messages.
+
+1. Get a free key at <https://aistudio.google.com/apikey> (no card needed).
+2. Add `GEMINI_API_KEY=your_key` to `local.properties` (gitignored) and rebuild.
+3. Settings shows "AI: Gemini…" when a key is built in.
+
+With no key or no internet, both features use an offline fallback (stopword removal, keyword
+replies) and are labelled *Offline*, so the demo never dead-ends. The model is set in
+`MorseAssistant.MODEL`. Notes: free-tier prompts may be used by Google to improve its models,
+and a key inside an APK can be extracted, so restrict it to the Generative Language API in
+Google Cloud console.
+
+## 5. Wi-Fi Direct — real watches only
 
 Uses `WifiP2pManager`: the creator becomes group owner and publishes a `_morse._tcp`
 DNS-SD service carrying the access code; joiners discover the service whose code
