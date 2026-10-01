@@ -49,7 +49,4 @@ object MorseTiming {
         if (steps.isEmpty()) return LongArray(0)
         return longArrayOf(0L) + steps.map { it.durationMs }.toLongArray()
     }
-
-    fun totalDurationMs(morse: String, unitMs: Long = DEFAULT_UNIT_MS): Long =
-        steps(morse, unitMs).sumOf { it.durationMs }
 }

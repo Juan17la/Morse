@@ -32,7 +32,7 @@ class GroupClient(
         try {
             raw.connect(InetSocketAddress(host, Protocol.PORT), CONNECT_TIMEOUT_MS)
         } catch (e: Exception) {
-            throw TransportException(TransportError.HOST_NOT_FOUND, host.hostAddress)
+            throw TransportException(TransportError.HOST_UNREACHABLE, host.hostAddress)
         }
         val envelopeSocket = EnvelopeSocket(raw)
         socket = envelopeSocket

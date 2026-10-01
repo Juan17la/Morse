@@ -22,7 +22,7 @@ import java.util.UUID
 import kotlin.random.Random
 
 /** In-memory transport with fake members so the whole flow can be demoed on one emulator. */
-class SimulatedTransport(private val replyWords: List<String>) : GroupTransport {
+class SimulatedTransport(fakeNames: List<String>, private val replyWords: List<String>) : GroupTransport {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -35,11 +35,7 @@ class SimulatedTransport(private val replyWords: List<String>) : GroupTransport 
     private val _incoming = MutableSharedFlow<MorseMessage>(extraBufferCapacity = 16)
     override val incoming: SharedFlow<MorseMessage> = _incoming.asSharedFlow()
 
-    private val fakes = listOf(
-        Member(id = "sim-ana", name = "Ana's Watch"),
-        Member(id = "sim-luis", name = "Luis' Watch"),
-        Member(id = "sim-maria", name = "María's Watch"),
-    )
+    private val fakes = fakeNames.mapIndexed { i, name -> Member(id = "sim-$i", name = name) }
 
     override suspend fun createGroup(self: Member): String {
         reset()

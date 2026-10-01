@@ -16,6 +16,17 @@ android {
         versionName = "1.0"
     }
 
+    flavorDimensions += "mode"
+    productFlavors {
+        create("full") { dimension = "mode" }
+        // Same UI with fake members and replies, for demoing on a single emulator.
+        create("demo") {
+            dimension = "mode"
+            applicationIdSuffix = ".demo"
+            versionNameSuffix = "-demo"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -66,12 +77,9 @@ dependencies {
     implementation("androidx.wear.compose:compose-material:1.3.1")
     implementation("androidx.wear.compose:compose-foundation:1.3.1")
     implementation("androidx.wear.compose:compose-navigation:1.3.1")
-    implementation("androidx.wear:wear-tooling-preview:1.0.0")
     implementation("androidx.wear:wear-input:1.1.0")
 
     implementation("androidx.compose.material:material-icons-core")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    debugImplementation("androidx.compose.ui:ui-tooling")
 
     implementation("androidx.datastore:datastore-preferences:1.1.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")

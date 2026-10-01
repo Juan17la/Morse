@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="demo_member_ana">Reloj de Ana</string>
+    <string name="demo_member_luis">Reloj de Luis</string>
+    <string name="demo_member_maria">Reloj de María</string>
+</resources>

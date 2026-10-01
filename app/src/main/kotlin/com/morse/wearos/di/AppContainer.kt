@@ -11,18 +11,28 @@ import com.morse.wearos.MorseApp
 import com.morse.wearos.core.haptics.HapticPlayer
 import com.morse.wearos.data.IdentityRepository
 import com.morse.wearos.data.SettingsRepository
+import com.morse.wearos.data.TransportMode
 import com.morse.wearos.data.WordsRepository
 import com.morse.wearos.group.GroupSession
-import com.morse.wearos.transport.TransportFactory
+import com.morse.wearos.transport.GroupTransport
+import com.morse.wearos.transport.demoTransport
+import com.morse.wearos.transport.lan.LanPeerFinder
+import com.morse.wearos.transport.socket.SocketGroupTransport
+import com.morse.wearos.transport.wifidirect.WifiDirectPeerFinder
+import kotlinx.coroutines.flow.first
 
 class AppContainer(private val appContext: Context) {
     val hapticPlayer: HapticPlayer by lazy { HapticPlayer(appContext) }
     val wordsRepository: WordsRepository by lazy { WordsRepository(appContext) }
     val identityRepository: IdentityRepository by lazy { IdentityRepository(appContext) }
     val settingsRepository: SettingsRepository by lazy { SettingsRepository(appContext) }
-    val transportFactory: TransportFactory by lazy { TransportFactory(appContext, settingsRepository) }
     val groupSession: GroupSession by lazy {
-        GroupSession(transportFactory, identityRepository, settingsRepository, hapticPlayer)
+        GroupSession(::transport, identityRepository, settingsRepository, hapticPlayer)
+    }
+
+    private fun transport(mode: TransportMode): GroupTransport = demoTransport(appContext) ?: when (mode) {
+        TransportMode.LAN -> SocketGroupTransport(LanPeerFinder { settingsRepository.lanHostAddress.first() })
+        TransportMode.WIFI_DIRECT -> SocketGroupTransport(WifiDirectPeerFinder(appContext))
     }
 }
 

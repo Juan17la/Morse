@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 data class SettingsUiState(
     val displayName: String = "",
     val hasNameOverride: Boolean = false,
-    val transportMode: TransportMode = TransportMode.SIMULATED,
+    val transportMode: TransportMode = SettingsRepository.DEFAULT_TRANSPORT,
     val lanHostAddress: String = SettingsRepository.DEFAULT_LAN_HOST,
 )
 

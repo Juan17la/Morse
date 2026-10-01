@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Morse</string>
+    <string name="app_name" translatable="false">Morse</string>
 
     <string name="home_current_group">Current group</string>
     <string name="home_current_group_code">Code %1$s</string>
@@ -27,6 +27,7 @@
     <string name="join_title">Enter access code</string>
     <string name="join_action">Join</string>
     <string name="join_connecting">Connecting…</string>
+    <string name="join_try_again">Try again</string>
     <string name="join_digit_description">Digit %1$d</string>
 
     <string name="send_title">Send</string>
@@ -40,6 +41,7 @@
     <string name="error_wrong_code">Wrong access code</string>
     <string name="error_group_full">The group is full</string>
     <string name="error_host_not_found">No group found with that code</string>
+    <string name="error_host_unreachable">Can\'t reach the host</string>
     <string name="error_connection_lost">Connection lost</string>
     <string name="error_not_supported">Not supported on this device</string>
     <string name="error_permission_denied">Permission denied</string>
@@ -56,6 +58,8 @@
     <string name="words_input_label">New word</string>
     <string name="words_empty">No custom words yet</string>
     <string name="words_defaults_header">Defaults</string>
+    <string name="words_too_long">Max %1$d characters</string>
+    <string name="words_duplicate">Already in your words</string>
     <string name="words_delete_title">Delete \"%1$s\"?</string>
 
     <string name="settings_title">Settings</string>
@@ -63,9 +67,8 @@
     <string name="settings_name_input_label">Your name</string>
     <string name="settings_name_reset">Use device name</string>
     <string name="settings_transport_header">Connection</string>
-    <string name="transport_simulated">Simulated</string>
     <string name="transport_lan">LAN / emulator</string>
-    <string name="transport_wifi_direct">Wi-Fi Direct</string>
+    <string name="transport_wifi_direct" translatable="false">Wi-Fi Direct</string>
     <string name="settings_lan_host">Host address</string>
     <string name="settings_lan_host_input_label">Host IP address</string>
     <string name="settings_diagnostics_header">Diagnostics</string>

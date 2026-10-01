@@ -1,6 +1,5 @@
 package com.morse.wearos.transport.wifidirect
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -12,7 +11,6 @@ import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
 import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo
 import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceRequest
-import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.morse.wearos.domain.TransportError
@@ -37,6 +35,7 @@ class WifiDirectPeerFinder(private val context: Context) : PeerFinder {
     private var receiver: BroadcastReceiver? = null
     private var connectionInfo = CompletableDeferred<WifiP2pInfo>()
 
+    @SuppressLint("MissingPermission") // open() throws PERMISSION_DENIED first
     override suspend fun publish(code: String) {
         val (manager, channel) = open()
         manager.removeGroupSafely(channel)
@@ -47,6 +46,7 @@ class WifiDirectPeerFinder(private val context: Context) : PeerFinder {
         manager.await(TransportError.UNKNOWN) { manager.addLocalService(channel, service, it) }
     }
 
+    @SuppressLint("MissingPermission") // open() throws PERMISSION_DENIED first
     override suspend fun resolveHost(code: String): InetAddress {
         val (manager, channel) = open()
         manager.removeGroupSafely(channel)
@@ -92,7 +92,7 @@ class WifiDirectPeerFinder(private val context: Context) : PeerFinder {
         val manager = manager?.takeIf {
             context.packageManager.hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT)
         } ?: throw TransportException(TransportError.NOT_SUPPORTED)
-        if (!hasPermission()) throw TransportException(TransportError.PERMISSION_DENIED)
+        if (ContextCompat.checkSelfPermission(context, wifiDirectPermission) != PackageManager.PERMISSION_GRANTED) throw TransportException(TransportError.PERMISSION_DENIED)
         channel?.let { return manager to it }
         val channel = manager.initialize(context, context.mainLooper, null)
             ?: throw TransportException(TransportError.NOT_SUPPORTED)
@@ -116,23 +116,9 @@ class WifiDirectPeerFinder(private val context: Context) : PeerFinder {
         receiver = r
     }
 
-    private fun hasPermission(): Boolean {
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.NEARBY_WIFI_DEVICES
-        } else {
-            Manifest.permission.ACCESS_FINE_LOCATION
-        }
-        return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
-    }
-
-    @SuppressLint("MissingPermission")
+    /** Drops any stale group from a previous session; failing here just means there was none. */
     private suspend fun WifiP2pManager.removeGroupSafely(channel: WifiP2pManager.Channel) {
-        suspendCancellableCoroutine { cont ->
-            removeGroup(channel, object : WifiP2pManager.ActionListener {
-                override fun onSuccess() = cont.resume(Unit)
-                override fun onFailure(reason: Int) = cont.resume(Unit)
-            })
-        }
+        runCatching { await(TransportError.UNKNOWN) { removeGroup(channel, it) } }
     }
 
     @SuppressLint("MissingPermission")
@@ -145,7 +131,8 @@ class WifiDirectPeerFinder(private val context: Context) : PeerFinder {
                 override fun onSuccess() = cont.resume(Unit)
                 override fun onFailure(reason: Int) {
                     Log.w(TAG, "p2p action failed: $reason")
-                    cont.resumeWithException(TransportException(error, "p2p error $reason"))
+                    val mapped = if (reason == WifiP2pManager.P2P_UNSUPPORTED) TransportError.NOT_SUPPORTED else error
+                    cont.resumeWithException(TransportException(mapped, "p2p error $reason"))
                 }
             })
         }

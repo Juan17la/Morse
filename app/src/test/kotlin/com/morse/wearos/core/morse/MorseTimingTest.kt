@@ -51,6 +51,5 @@ class MorseTimingTest {
     @Test
     fun emptyMorseProducesEmptyPattern() {
         assertEquals(0, MorseTiming.toVibrationPattern("", unit).size)
-        assertEquals(0L, MorseTiming.totalDurationMs("", unit))
     }
 }

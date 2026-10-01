@@ -8,29 +8,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
-import androidx.wear.compose.material.PositionIndicator
-import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
-import androidx.wear.compose.material.Vignette
-import androidx.wear.compose.material.VignettePosition
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Dialog
 import com.morse.wearos.R
 import com.morse.wearos.data.TransportMode
 import com.morse.wearos.di.containerViewModel
+import com.morse.wearos.transport.IS_DEMO
+import com.morse.wearos.ui.components.MorseScaffold
 import com.morse.wearos.ui.permissions.rememberWifiDirectPermissionRequest
 
 @Composable
 fun HomeScreen(
-    onGroupCreated: () -> Unit,
     onOpenGroup: () -> Unit,
     onJoinGroup: () -> Unit,
     onWords: () -> Unit,
@@ -39,7 +34,6 @@ fun HomeScreen(
 ) {
     val transportMode by viewModel.transportMode.collectAsStateWithLifecycle()
     val activeGroupCode by viewModel.activeGroupCode.collectAsStateWithLifecycle()
-    val listState = rememberScalingLazyListState()
     var permissionDenied by remember { mutableStateOf(false) }
     var pendingAction by remember { mutableStateOf<(() -> Unit)?>(null) }
 
@@ -49,7 +43,7 @@ fun HomeScreen(
     )
 
     fun guarded(action: () -> Unit) {
-        if (transportMode == TransportMode.WIFI_DIRECT) {
+        if (transportMode == TransportMode.WIFI_DIRECT && !IS_DEMO) {
             pendingAction = action
             requestPermission()
         } else {
@@ -57,57 +51,28 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
-        timeText = { TimeText() },
-        vignette = { Vignette(vignettePosition = VignettePosition.TopAndBottom) },
-        positionIndicator = { PositionIndicator(scalingLazyListState = listState) },
-    ) {
-        ScalingLazyColumn(state = listState) {
-            item { ListHeader { Text(stringResource(R.string.app_name)) } }
-            activeGroupCode?.let { code ->
-                item {
-                    Chip(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(stringResource(R.string.home_current_group)) },
-                        secondaryLabel = { Text(stringResource(R.string.home_current_group_code, code)) },
-                        colors = ChipDefaults.primaryChipColors(),
-                        onClick = onOpenGroup,
-                    )
-                }
-            }
+    MorseScaffold {
+        item { ListHeader { Text(stringResource(R.string.app_name)) } }
+        activeGroupCode?.let { code ->
             item {
-                Chip(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.home_create_group)) },
-                    colors = if (activeGroupCode == null) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
-                    onClick = { guarded { viewModel.createGroup(); onGroupCreated() } },
-                )
-            }
-            item {
-                Chip(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.home_join_group)) },
-                    colors = ChipDefaults.secondaryChipColors(),
-                    onClick = { guarded(onJoinGroup) },
-                )
-            }
-            item {
-                Chip(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.home_my_words)) },
-                    colors = ChipDefaults.secondaryChipColors(),
-                    onClick = onWords,
-                )
-            }
-            item {
-                Chip(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.home_settings)) },
-                    colors = ChipDefaults.secondaryChipColors(),
-                    onClick = onSettings,
+                HomeChip(
+                    label = stringResource(R.string.home_current_group),
+                    secondary = stringResource(R.string.home_current_group_code, code),
+                    primary = true,
+                    onClick = onOpenGroup,
                 )
             }
         }
+        item {
+            HomeChip(
+                label = stringResource(R.string.home_create_group),
+                primary = activeGroupCode == null,
+                onClick = { guarded { viewModel.createGroup(); onOpenGroup() } },
+            )
+        }
+        item { HomeChip(stringResource(R.string.home_join_group), onClick = { guarded(onJoinGroup) }) }
+        item { HomeChip(stringResource(R.string.home_my_words), onClick = onWords) }
+        item { HomeChip(stringResource(R.string.home_settings), onClick = onSettings) }
     }
 
     Dialog(showDialog = permissionDenied, onDismissRequest = { permissionDenied = false }) {
@@ -120,4 +85,15 @@ fun HomeScreen(
             negativeButton = {},
         )
     }
+}
+
+@Composable
+private fun HomeChip(label: String, secondary: String? = null, primary: Boolean = false, onClick: () -> Unit) {
+    Chip(
+        modifier = Modifier.fillMaxWidth(),
+        label = { Text(label, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+        secondaryLabel = secondary?.let { { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
+        colors = if (primary) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
+        onClick = onClick,
+    )
 }

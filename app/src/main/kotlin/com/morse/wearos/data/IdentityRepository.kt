@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.morse.wearos.domain.Member
+import com.morse.wearos.domain.cleanMemberName
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -19,7 +20,7 @@ private val Context.identityDataStore: DataStore<Preferences> by preferencesData
 class IdentityRepository(private val context: Context) {
 
     val displayName: Flow<String> = context.identityDataStore.data.map { prefs ->
-        prefs[KEY_NAME_OVERRIDE]?.takeIf { it.isNotBlank() } ?: deviceName()
+        cleanMemberName(prefs[KEY_NAME_OVERRIDE]?.takeIf { it.isNotBlank() } ?: deviceName())
     }
 
     val hasNameOverride: Flow<Boolean> = context.identityDataStore.data.map { prefs ->
@@ -28,8 +29,8 @@ class IdentityRepository(private val context: Context) {
 
     suspend fun setNameOverride(name: String?) {
         context.identityDataStore.edit { prefs ->
-            val trimmed = name?.trim()
-            if (trimmed.isNullOrEmpty()) prefs.remove(KEY_NAME_OVERRIDE) else prefs[KEY_NAME_OVERRIDE] = trimmed
+            val clean = name?.takeIf { it.isNotBlank() }?.let(::cleanMemberName)
+            if (clean == null) prefs.remove(KEY_NAME_OVERRIDE) else prefs[KEY_NAME_OVERRIDE] = clean
         }
     }
 
@@ -41,8 +42,7 @@ class IdentityRepository(private val context: Context) {
         return fresh
     }
 
-    suspend fun self(isHost: Boolean = false): Member =
-        Member(id = memberId(), name = displayName.first(), isHost = isHost)
+    suspend fun self(): Member = Member(id = memberId(), name = displayName.first())
 
     private fun deviceName(): String =
         Settings.Global.getString(context.contentResolver, "device_name")?.takeIf { it.isNotBlank() }

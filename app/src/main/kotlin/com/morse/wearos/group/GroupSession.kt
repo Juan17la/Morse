@@ -5,13 +5,13 @@ import com.morse.wearos.core.haptics.HapticPlayer
 import com.morse.wearos.core.morse.MorseCodec
 import com.morse.wearos.data.IdentityRepository
 import com.morse.wearos.data.SettingsRepository
+import com.morse.wearos.data.TransportMode
 import com.morse.wearos.domain.ConnectionState
 import com.morse.wearos.domain.GroupInfo
 import com.morse.wearos.domain.MorseMessage
 import com.morse.wearos.domain.TransportError
 import com.morse.wearos.transport.GroupTransport
 import com.morse.wearos.transport.TransportException
-import com.morse.wearos.transport.TransportFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -22,19 +22,16 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 private const val TAG = "GroupSession"
 
-sealed interface SessionEvent {
-    data class MessageReceived(val message: MorseMessage) : SessionEvent
-}
-
 /** App-scoped owner of the active group: swaps transports, relays state and plays haptics. */
 class GroupSession(
-    private val transportFactory: TransportFactory,
+    private val createTransport: (TransportMode) -> GroupTransport,
     private val identity: IdentityRepository,
     private val settings: SettingsRepository,
     private val haptics: HapticPlayer,
@@ -53,8 +50,9 @@ class GroupSession(
     private val _lastMessage = MutableStateFlow<MorseMessage?>(null)
     val lastMessage: StateFlow<MorseMessage?> = _lastMessage.asStateFlow()
 
-    private val _events = MutableSharedFlow<SessionEvent>(extraBufferCapacity = 8)
-    val events: SharedFlow<SessionEvent> = _events.asSharedFlow()
+    /** Messages from other members; the local echo of our own sends is filtered out. */
+    private val _received = MutableSharedFlow<MorseMessage>(extraBufferCapacity = 8)
+    val received: SharedFlow<MorseMessage> = _received.asSharedFlow()
 
     var selfId: String? = null
         private set
@@ -66,9 +64,9 @@ class GroupSession(
         scope.launch { createGroup() }
     }
 
-    suspend fun createGroup() {
+    private suspend fun createGroup() {
         val t = attachTransport()
-        val self = identity.self(isHost = true)
+        val self = identity.self()
         selfId = self.id
         isHost = true
         runCatching { t.createGroup(self) }
@@ -78,7 +76,7 @@ class GroupSession(
 
     suspend fun joinGroup(code: String) {
         val t = attachTransport()
-        val self = identity.self(isHost = false)
+        val self = identity.self()
         selfId = self.id
         isHost = false
         _group.value = GroupInfo(code, emptyList())
@@ -116,9 +114,9 @@ class GroupSession(
 
     private suspend fun attachTransport(): GroupTransport {
         leave()
-        val mode = settings.currentTransportMode()
+        val mode = settings.transportMode.first()
         Log.d(TAG, "attaching transport for mode $mode")
-        val t = transportFactory.create(mode)
+        val t = createTransport(mode)
         transport = t
         collectors = listOf(
             scope.launch { t.state.collect { _state.value = it } },
@@ -132,14 +130,12 @@ class GroupSession(
         _lastMessage.value = message
         if (message.senderId != selfId) {
             haptics.play(message.morse)
-            _events.tryEmit(SessionEvent.MessageReceived(message))
+            _received.tryEmit(message)
         }
     }
 
     private fun fail(error: Throwable) {
-        _state.value = when (error) {
-            is TransportException -> ConnectionState.Error(error.error)
-            else -> ConnectionState.Error(TransportError.UNKNOWN, error.message ?: error::class.simpleName)
-        }
+        Log.w(TAG, "group operation failed", error)
+        _state.value = ConnectionState.Error((error as? TransportException)?.error ?: TransportError.UNKNOWN)
     }
 }

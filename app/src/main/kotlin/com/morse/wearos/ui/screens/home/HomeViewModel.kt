@@ -17,7 +17,7 @@ class HomeViewModel(
 ) : ViewModel() {
 
     val transportMode: StateFlow<TransportMode> = settings.transportMode
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TransportMode.SIMULATED)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsRepository.DEFAULT_TRANSPORT)
 
     /** Access code of the group this watch is currently connected to, if any. */
     val activeGroupCode: StateFlow<String?> = combine(session.state, session.group) { state, group ->

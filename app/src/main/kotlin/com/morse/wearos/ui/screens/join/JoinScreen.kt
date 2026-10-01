@@ -20,9 +20,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CircularProgressIndicator
+import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
 import androidx.wear.compose.material.PickerState
@@ -32,10 +32,11 @@ import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.rememberPickerState
 import com.morse.wearos.R
 import com.morse.wearos.di.containerViewModel
-import com.morse.wearos.ui.components.errorMessage
-import com.morse.wearos.ui.components.isCompactScreen
 import com.morse.wearos.domain.ConnectionState
 import com.morse.wearos.domain.GroupConfig
+import com.morse.wearos.ui.components.ErrorText
+import com.morse.wearos.ui.components.isCompactScreen
+import com.morse.wearos.ui.components.screenPct
 
 @Composable
 fun JoinScreen(
@@ -52,30 +53,32 @@ fun JoinScreen(
 
     Scaffold(timeText = { TimeText() }) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp),
+            // Centred vertically so the content sits in the widest band of a round face.
+            modifier = Modifier.fillMaxSize().padding(horizontal = screenPct(0.1f)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = stringResource(R.string.join_title),
+                // The round bezel is narrowest up here; inset so long or scaled text wraps instead of clipping.
+                modifier = Modifier.padding(horizontal = screenPct(0.08f)),
                 style = MaterialTheme.typography.caption1,
                 color = MaterialTheme.colors.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
             )
             Spacer(Modifier.height(4.dp))
+            val current = connection
             when {
-                requested && connection == ConnectionState.Joining -> {
+                requested && current == ConnectionState.Joining -> {
                     CircularProgressIndicator(modifier = Modifier.padding(12.dp))
-                    Text(stringResource(R.string.join_connecting))
+                    Text(stringResource(R.string.join_connecting), textAlign = TextAlign.Center)
                 }
-                requested && connection is ConnectionState.Error -> {
-                    Text(
-                        text = errorMessage(connection as ConnectionState.Error),
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colors.error,
-                    )
+                requested && current is ConnectionState.Error -> {
+                    ErrorText(current)
                     Spacer(Modifier.height(8.dp))
-                    Chip(
-                        label = { Text(stringResource(R.string.action_retry)) },
+                    CompactChip(
+                        label = { Text(stringResource(R.string.join_try_again)) },
                         colors = ChipDefaults.primaryChipColors(),
                         onClick = { requested = false; viewModel.cancel() },
                     )
@@ -83,7 +86,7 @@ fun JoinScreen(
                 else -> {
                     CodePickers(pickers)
                     Spacer(Modifier.height(8.dp))
-                    Chip(
+                    CompactChip(
                         label = { Text(stringResource(R.string.join_action)) },
                         colors = ChipDefaults.primaryChipColors(),
                         onClick = {
@@ -100,14 +103,14 @@ fun JoinScreen(
 @Composable
 private fun CodePickers(pickers: List<PickerState>) {
     val compact = isCompactScreen()
-    val pickerHeight = if (compact) 66.dp else 84.dp
     val digitStyle = if (compact) MaterialTheme.typography.title1 else MaterialTheme.typography.display3
-    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+    val pickerSize = Modifier.size(width = screenPct(0.15f), height = screenPct(if (compact) 0.26f else 0.32f))
+    Row(horizontalArrangement = Arrangement.spacedBy(screenPct(0.02f))) {
         pickers.forEachIndexed { index, state ->
             Picker(
                 state = state,
                 contentDescription = stringResource(R.string.join_digit_description, index + 1),
-                modifier = Modifier.size(width = 32.dp, height = pickerHeight),
+                modifier = pickerSize,
             ) { option ->
                 Text(text = option.toString(), style = digitStyle)
             }

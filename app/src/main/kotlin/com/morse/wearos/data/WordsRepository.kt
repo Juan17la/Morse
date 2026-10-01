@@ -13,23 +13,25 @@ import kotlinx.serialization.json.Json
 
 private val Context.wordsDataStore: DataStore<Preferences> by preferencesDataStore(name = "morse_words")
 
+enum class AddResult { ADDED, INVALID, DUPLICATE }
+
 class WordsRepository(private val context: Context) {
 
     val customWords: Flow<List<String>> = context.wordsDataStore.data.map { prefs ->
         prefs[KEY_CUSTOM_WORDS]?.let { decode(it) } ?: emptyList()
     }
 
-    suspend fun add(raw: String): Boolean {
-        val word = normalize(raw) ?: return false
-        var added = false
+    suspend fun add(raw: String): AddResult {
+        val word = normalize(raw) ?: return AddResult.INVALID
+        var result = AddResult.DUPLICATE
         context.wordsDataStore.edit { prefs ->
             val current = prefs[KEY_CUSTOM_WORDS]?.let { decode(it) } ?: emptyList()
             if (current.none { it.equals(word, ignoreCase = true) }) {
                 prefs[KEY_CUSTOM_WORDS] = Json.encodeToString(current + word)
-                added = true
+                result = AddResult.ADDED
             }
         }
-        return added
+        return result
     }
 
     suspend fun remove(word: String) {

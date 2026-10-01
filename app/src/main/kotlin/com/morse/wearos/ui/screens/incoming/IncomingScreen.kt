@@ -20,24 +20,20 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.wear.compose.foundation.lazy.AutoCenteringParams
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.PositionIndicator
-import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.Text
-import androidx.wear.compose.material.TimeText
 import com.morse.wearos.R
 import com.morse.wearos.core.morse.MorseTiming
 import com.morse.wearos.di.containerViewModel
+import com.morse.wearos.ui.components.MorseScaffold
 import com.morse.wearos.ui.components.isCompactScreen
 import kotlinx.coroutines.delay
 
@@ -47,51 +43,51 @@ fun IncomingScreen(
 ) {
     val message by viewModel.message.collectAsStateWithLifecycle()
     var playToken by remember { mutableIntStateOf(0) }
-    val listState = rememberScalingLazyListState(initialCenterItemIndex = 1)
     val compact = isCompactScreen()
+    val current = message
 
-    Scaffold(
-        timeText = { TimeText() },
-        positionIndicator = { PositionIndicator(scalingLazyListState = listState) },
-    ) {
-        val current = message
-        ScalingLazyColumn(state = listState, autoCentering = AutoCenteringParams(itemIndex = 0)) {
-            if (current == null) {
-                item { Text(stringResource(R.string.incoming_empty), textAlign = TextAlign.Center) }
-                return@ScalingLazyColumn
-            }
+    MorseScaffold {
+        if (current == null) {
             item {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = stringResource(R.string.incoming_from, current.senderName),
-                        style = MaterialTheme.typography.caption1,
-                        color = MaterialTheme.colors.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        maxLines = 1,
-                    )
-                    Text(
-                        text = current.word,
-                        style = if (compact) MaterialTheme.typography.title1 else MaterialTheme.typography.display3,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                    )
-                }
+                Text(stringResource(R.string.incoming_empty), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
-            item {
-                MorseVisualizer(
-                    morse = current.morse,
-                    playToken = playToken,
-                    messageId = current.id,
-                    fontSize = if (compact) 15.sp else 18.sp,
+            return@MorseScaffold
+        }
+        item {
+            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = stringResource(R.string.incoming_from, current.senderName),
+                    style = MaterialTheme.typography.caption1,
+                    color = MaterialTheme.colors.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = current.word,
+                    // Custom words run up to 20 chars; only short ones get the display size.
+                    style = if (compact || current.word.length > 8) MaterialTheme.typography.title1 else MaterialTheme.typography.display3,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
-            item {
-                Button(
-                    modifier = Modifier.padding(top = 4.dp),
-                    onClick = { viewModel.replay(); playToken++ },
-                ) {
-                    Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.incoming_replay))
-                }
+        }
+        item {
+            MorseVisualizer(
+                morse = current.morse,
+                playToken = playToken,
+                messageId = current.id,
+                fontSize = if (compact) 15.sp else 18.sp,
+            )
+        }
+        item {
+            Button(
+                modifier = Modifier.padding(top = 4.dp),
+                onClick = { viewModel.replay(); playToken++ },
+            ) {
+                Icon(Icons.Filled.Refresh, contentDescription = stringResource(R.string.incoming_replay))
             }
         }
     }
@@ -116,7 +112,7 @@ private fun MorseVisualizer(morse: String, playToken: Int, messageId: String, fo
     val dim = MaterialTheme.colors.onSurfaceVariant
     val done = MaterialTheme.colors.onSurface
     Text(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        modifier = Modifier.fillMaxWidth(),
         text = buildAnnotatedString {
             morse.forEachIndexed { index, c ->
                 val style = when {

@@ -1,16 +1,22 @@
 # Demoing Morse on emulators
 
-The app has three connection modes (Settings → Connection). All of them share the
-same UI, protocol and group session; only the way watches find each other changes.
+There are two builds. **full** is the real app, with the LAN and Wi-Fi Direct connection
+modes (Settings → Connection). **demo** is the same UI with simulated watches, installed
+next to it as *Morse Demo*. Everything shares the same UI, protocol and group session;
+only the way watches find each other changes.
 
-## 1. Simulated (default) — one emulator
+## 1. Demo build — one emulator
 
-No setup. Create a group and fake members ("Ana's Watch", "Luis' Watch") join after
+```sh
+./gradlew :app:installDemoDebug
+```
+
+No setup. Create a group and fake members ("Ana's watch", "Luis's watch") join after
 a moment; every message you send gets a fake reply 2–4 s later, which opens the
 Incoming screen and plays the Morse vibration. The emulator has no motor, so the
 pattern is also logged:
 
-```
+```sh
 adb logcat -s HapticPlayer
 ```
 
@@ -22,12 +28,18 @@ Android emulator `10.0.2.2` is the development machine, so with one `adb forward
 per host a second emulator can reach the first one.
 
 1. Start two Wear OS emulators (e.g. `emulator-5554` and `emulator-5556`) and install
-   the app on both.
+   the full build on both:
+
+   ```sh
+   ANDROID_SERIAL=emulator-5554 ./gradlew :app:installFullDebug
+   ANDROID_SERIAL=emulator-5556 ./gradlew :app:installFullDebug
+   ```
+
 2. On **both** emulators: Settings → Connection → **LAN / emulator**.
 3. On the joiner(s) the *Host address* must be `10.0.2.2` (the default).
 4. Forward the host port on the emulator that will create the group:
 
-   ```
+   ```sh
    adb -s emulator-5554 forward tcp:8765 tcp:8765
    ```
 
@@ -35,11 +47,12 @@ per host a second emulator can reach the first one.
 6. On `emulator-5556`: **Join group**, enter the code, **Join**.
    - Wrong code → "Wrong access code".
    - A 4th watch → "The group is full" (`GroupConfig.MAX_MEMBERS`).
+   - Host not running or port not forwarded → "Can't reach the host".
 7. Send a word from either side; the other side opens the Incoming screen with the
    sender's name, the word and its Morse.
 
 Because two emulators report the same device name, set a different name on each one
-(Settings → My name) so the sender is recognizable.
+(Settings → My name, up to 20 characters) so the sender is recognizable.
 
 ## 3. Wi-Fi Direct — real watches only
 

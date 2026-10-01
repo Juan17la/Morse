@@ -25,6 +25,7 @@
     <string name="join_title">Ingresa el código</string>
     <string name="join_action">Unirse</string>
     <string name="join_connecting">Conectando…</string>
+    <string name="join_try_again">Intentar de nuevo</string>
     <string name="join_digit_description">Dígito %1$d</string>
 
     <string name="send_title">Enviar</string>
@@ -38,6 +39,7 @@
     <string name="error_wrong_code">Código de acceso incorrecto</string>
     <string name="error_group_full">El grupo está lleno</string>
     <string name="error_host_not_found">No se encontró un grupo con ese código</string>
+    <string name="error_host_unreachable">No se puede conectar con el anfitrión</string>
     <string name="error_connection_lost">Conexión perdida</string>
     <string name="error_not_supported">No compatible con este dispositivo</string>
     <string name="error_permission_denied">Permiso denegado</string>
@@ -54,6 +56,8 @@
     <string name="words_input_label">Nueva palabra</string>
     <string name="words_empty">Aún no hay palabras personalizadas</string>
     <string name="words_defaults_header">Predeterminadas</string>
+    <string name="words_too_long">Máximo %1$d caracteres</string>
+    <string name="words_duplicate">Ya está en tus palabras</string>
     <string name="words_delete_title">¿Eliminar \"%1$s\"?</string>
 
     <string name="settings_title">Ajustes</string>
@@ -61,9 +65,7 @@
     <string name="settings_name_input_label">Tu nombre</string>
     <string name="settings_name_reset">Usar nombre del dispositivo</string>
     <string name="settings_transport_header">Conexión</string>
-    <string name="transport_simulated">Simulada</string>
     <string name="transport_lan">LAN / emulador</string>
-    <string name="transport_wifi_direct">Wi-Fi Direct</string>
     <string name="settings_lan_host">Dirección del host</string>
     <string name="settings_lan_host_input_label">IP del host</string>
     <string name="settings_diagnostics_header">Diagnóstico</string>

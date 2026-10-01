@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Morse Demo</string>
+    <string name="demo_member_ana">Ana\'s watch</string>
+    <string name="demo_member_luis">Luis\'s watch</string>
+    <string name="demo_member_maria">María\'s watch</string>
+</resources>

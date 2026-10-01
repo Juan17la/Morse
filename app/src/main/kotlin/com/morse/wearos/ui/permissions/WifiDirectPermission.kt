@@ -1,8 +1,6 @@
 package com.morse.wearos.ui.permissions
 
-import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -10,13 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-
-val wifiDirectPermission: String =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        Manifest.permission.NEARBY_WIFI_DEVICES
-    } else {
-        Manifest.permission.ACCESS_FINE_LOCATION
-    }
+import com.morse.wearos.transport.wifidirect.wifiDirectPermission
 
 /** Returns an action that runs [onGranted] immediately if allowed, or after the system prompt. */
 @Composable

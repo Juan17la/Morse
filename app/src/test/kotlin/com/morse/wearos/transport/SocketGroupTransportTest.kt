@@ -53,6 +53,15 @@ class SocketGroupTransportTest {
     }
 
     @Test
+    fun hostCleansJoinerNames() = runBlocking {
+        val code = host.createGroup(hostMember)
+        joiners[0].joinGroup(code, Member("joiner0", "  " + "x".repeat(100) + "  "))
+
+        val name = withTimeout(2_000) { host.members.first { it.size == 2 } }.first { it.id == "joiner0" }.name
+        assertEquals("x".repeat(GroupConfig.MAX_NAME_LENGTH), name)
+    }
+
+    @Test
     fun wrongCodeIsRejected() = runBlocking {
         val code = host.createGroup(hostMember)
         val wrong = if (code == "0000") "0001" else "0000"

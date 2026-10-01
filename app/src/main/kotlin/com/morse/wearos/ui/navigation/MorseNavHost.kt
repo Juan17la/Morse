@@ -6,7 +6,6 @@ import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.morse.wearos.di.appContainer
-import com.morse.wearos.group.SessionEvent
 import com.morse.wearos.ui.screens.group.GroupScreen
 import com.morse.wearos.ui.screens.home.HomeScreen
 import com.morse.wearos.ui.screens.incoming.IncomingScreen
@@ -21,21 +20,14 @@ fun MorseNavHost() {
     val session = appContainer().groupSession
 
     LaunchedEffect(session) {
-        session.events.collect { event ->
-            when (event) {
-                is SessionEvent.MessageReceived -> {
-                    if (navController.currentDestination?.route != Routes.INCOMING) {
-                        navController.navigate(Routes.INCOMING) { launchSingleTop = true }
-                    }
-                }
-            }
+        session.received.collect {
+            navController.navigate(Routes.INCOMING) { launchSingleTop = true }
         }
     }
 
     SwipeDismissableNavHost(navController = navController, startDestination = Routes.HOME) {
         composable(Routes.HOME) {
             HomeScreen(
-                onGroupCreated = { navController.navigate(Routes.GROUP) },
                 onOpenGroup = { navController.navigate(Routes.GROUP) },
                 onJoinGroup = { navController.navigate(Routes.JOIN) },
                 onWords = { navController.navigate(Routes.WORDS) },

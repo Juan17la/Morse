@@ -4,6 +4,7 @@ import android.util.Log
 import com.morse.wearos.domain.GroupConfig
 import com.morse.wearos.domain.Member
 import com.morse.wearos.domain.MorseMessage
+import com.morse.wearos.domain.cleanMemberName
 import com.morse.wearos.transport.Envelope
 import com.morse.wearos.transport.Protocol
 import kotlinx.coroutines.CoroutineScope
@@ -70,7 +71,7 @@ class GroupHostServer(
             socket.write(Envelope.Rejected(Envelope.Rejected.Reason.WRONG_CODE))
             socket.close(); return
         }
-        val member = hello.member.copy(isHost = false)
+        val member = hello.member.copy(name = cleanMemberName(hello.member.name), isHost = false)
         val accepted = clientsLock.withLock {
             if (clients.size + 1 >= GroupConfig.MAX_MEMBERS) {
                 false
