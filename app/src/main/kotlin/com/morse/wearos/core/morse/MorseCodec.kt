@@ -25,6 +25,9 @@ object MorseCodec {
                 word.mapNotNull { table[normalize(it)] }.joinToString(LETTER_GAP)
             }
 
+    /** True when [c] (any case, accents allowed) has a Morse code; anything else is dropped by [encode]. */
+    fun isEncodable(c: Char): Boolean = table.containsKey(normalize(c.uppercaseChar()))
+
     private fun normalize(c: Char): Char = when (c) {
         'Á' -> 'A'; 'É' -> 'E'; 'Í' -> 'I'; 'Ó' -> 'O'; 'Ú', 'Ü' -> 'U'
         else -> c

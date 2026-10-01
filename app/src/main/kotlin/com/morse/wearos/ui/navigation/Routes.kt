@@ -8,4 +8,8 @@ object Routes {
     const val INCOMING = "incoming"
     const val WORDS = "words"
     const val SETTINGS = "settings"
+
+    const val CONDENSE_ARG = "text"
+    const val CONDENSE = "condense/{$CONDENSE_ARG}"
+    fun condense(text: String): String = "condense/${android.net.Uri.encode(text)}"
 }

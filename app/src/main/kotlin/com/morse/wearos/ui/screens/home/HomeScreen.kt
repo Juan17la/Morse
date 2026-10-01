@@ -1,19 +1,13 @@
 package com.morse.wearos.ui.screens.home
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.Button
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Dialog
@@ -22,7 +16,9 @@ import com.morse.wearos.data.TransportMode
 import com.morse.wearos.di.containerViewModel
 import com.morse.wearos.transport.IS_DEMO
 import com.morse.wearos.ui.components.MorseScaffold
+import com.morse.wearos.ui.components.Platter
 import com.morse.wearos.ui.permissions.rememberWifiDirectPermissionRequest
+import com.morse.wearos.ui.theme.MorseColors
 
 @Composable
 fun HomeScreen(
@@ -51,28 +47,50 @@ fun HomeScreen(
         }
     }
 
-    MorseScaffold {
-        item { ListHeader { Text(stringResource(R.string.app_name)) } }
+    MorseScaffold(title = stringResource(R.string.app_name)) {
         activeGroupCode?.let { code ->
             item {
-                HomeChip(
-                    label = stringResource(R.string.home_current_group),
-                    secondary = stringResource(R.string.home_current_group_code, code),
-                    primary = true,
+                Platter(
+                    title = stringResource(R.string.home_current_group),
+                    subtitle = stringResource(R.string.home_current_group_code, code),
+                    icon = R.drawable.ph_users_three,
+                    accent = true,
                     onClick = onOpenGroup,
                 )
             }
         }
         item {
-            HomeChip(
-                label = stringResource(R.string.home_create_group),
-                primary = activeGroupCode == null,
+            Platter(
+                title = stringResource(R.string.home_create_group),
+                icon = R.drawable.ph_plus,
+                iconTint = MorseColors.Green,
                 onClick = { guarded { viewModel.createGroup(); onOpenGroup() } },
             )
         }
-        item { HomeChip(stringResource(R.string.home_join_group), onClick = { guarded(onJoinGroup) }) }
-        item { HomeChip(stringResource(R.string.home_my_words), onClick = onWords) }
-        item { HomeChip(stringResource(R.string.home_settings), onClick = onSettings) }
+        item {
+            Platter(
+                title = stringResource(R.string.home_join_group),
+                icon = R.drawable.ph_sign_in,
+                iconTint = MorseColors.Blue,
+                onClick = { guarded(onJoinGroup) },
+            )
+        }
+        item {
+            Platter(
+                title = stringResource(R.string.home_my_words),
+                icon = R.drawable.ph_chat_text,
+                iconTint = MorseColors.Purple,
+                onClick = onWords,
+            )
+        }
+        item {
+            Platter(
+                title = stringResource(R.string.home_settings),
+                icon = R.drawable.ph_gear_six,
+                iconTint = MorseColors.Grey,
+                onClick = onSettings,
+            )
+        }
     }
 
     Dialog(showDialog = permissionDenied, onDismissRequest = { permissionDenied = false }) {
@@ -85,15 +103,4 @@ fun HomeScreen(
             negativeButton = {},
         )
     }
-}
-
-@Composable
-private fun HomeChip(label: String, secondary: String? = null, primary: Boolean = false, onClick: () -> Unit) {
-    Chip(
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text(label, maxLines = 2, overflow = TextOverflow.Ellipsis) },
-        secondaryLabel = secondary?.let { { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) } },
-        colors = if (primary) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
-        onClick = onClick,
-    )
 }

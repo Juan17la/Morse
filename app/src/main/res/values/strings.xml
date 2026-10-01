@@ -22,6 +22,8 @@
     <string name="group_member_host">Host</string>
     <string name="group_member_you">You</string>
     <string name="group_send">Send message</string>
+    <string name="group_service_channel">Group connection</string>
+    <string name="group_service_text">Connected to your group</string>
     <string name="group_leave">Leave group</string>
 
     <string name="join_title">Enter access code</string>
@@ -73,4 +75,21 @@
     <string name="settings_lan_host_input_label">Host IP address</string>
     <string name="settings_diagnostics_header">Diagnostics</string>
     <string name="settings_test_vibration">Test vibration (SOS)</string>
+
+    <string name="send_dictate">Dictate</string>
+    <string name="send_dictate_hint">AI shortens it for Morse</string>
+    <string name="send_dictate_label">Say your message</string>
+    <string name="send_quick_header">Quick words</string>
+
+    <string name="condense_title">Shortened</string>
+    <string name="condense_shortened">Send this</string>
+    <string name="condense_seconds">Vibration: %1$d s → %2$d s</string>
+    <string name="condense_as_dictated">As dictated</string>
+
+    <string name="incoming_quick_replies">Reply</string>
+
+    <string name="ai_badge">AI</string>
+    <string name="ai_badge_offline">Offline</string>
+    <string name="settings_ai_online">AI: Gemini (offline fallback when no internet)</string>
+    <string name="settings_ai_offline">AI: offline mode (no Gemini key in this build)</string>
 </resources>

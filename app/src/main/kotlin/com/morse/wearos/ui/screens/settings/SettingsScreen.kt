@@ -1,15 +1,18 @@
 package com.morse.wearos.ui.screens.settings
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
+import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.RadioButton
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
@@ -19,12 +22,14 @@ import com.morse.wearos.data.TransportMode
 import com.morse.wearos.di.containerViewModel
 import com.morse.wearos.transport.IS_DEMO
 import com.morse.wearos.ui.components.MorseScaffold
+import com.morse.wearos.ui.components.Platter
 import com.morse.wearos.ui.components.rememberTextInputLauncher
+import com.morse.wearos.ui.theme.MorseColors
 
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = containerViewModel {
-        SettingsViewModel(it.identityRepository, it.settingsRepository, it.hapticPlayer)
+        SettingsViewModel(it.identityRepository, it.settingsRepository, it.hapticPlayer, it.assistant)
     },
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -38,24 +43,23 @@ fun SettingsScreen(
         onResult = viewModel::setLanHostAddress,
     )
 
-    MorseScaffold {
-        item { ListHeader { Text(stringResource(R.string.settings_title)) } }
+    MorseScaffold(title = stringResource(R.string.settings_title)) {
 
         item {
-            Chip(
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.settings_name)) },
-                secondaryLabel = { Text(state.displayName, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                colors = ChipDefaults.secondaryChipColors(),
+            Platter(
+                title = stringResource(R.string.settings_name),
+                subtitle = state.displayName,
+                icon = R.drawable.ph_user,
+                iconTint = MorseColors.Blue,
                 onClick = launchNameInput,
             )
         }
         if (state.hasNameOverride) {
             item {
-                Chip(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.settings_name_reset)) },
-                    colors = ChipDefaults.secondaryChipColors(),
+                Platter(
+                    title = stringResource(R.string.settings_name_reset),
+                    icon = R.drawable.ph_arrow_counter_clockwise,
+                    iconTint = MorseColors.Grey,
                     onClick = viewModel::resetName,
                 )
             }
@@ -72,16 +76,22 @@ fun SettingsScreen(
                     onCheckedChange = { if (it) viewModel.setTransportMode(mode) },
                     label = { Text(stringResource(mode.labelRes()), maxLines = 2, overflow = TextOverflow.Ellipsis) },
                     toggleControl = { RadioButton(selected = state.transportMode == mode) },
-                    colors = ToggleChipDefaults.toggleChipColors(),
+                    colors = ToggleChipDefaults.toggleChipColors(
+                        checkedStartBackgroundColor = MorseColors.Platter,
+                        checkedEndBackgroundColor = MorseColors.Platter,
+                        uncheckedStartBackgroundColor = MorseColors.Platter,
+                        uncheckedEndBackgroundColor = MorseColors.Platter,
+                    ),
+                    shape = RoundedCornerShape(22.dp),
                 )
             }
             if (state.transportMode == TransportMode.LAN) {
                 item {
-                    Chip(
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(stringResource(R.string.settings_lan_host)) },
-                        secondaryLabel = { Text(state.lanHostAddress, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-                        colors = ChipDefaults.secondaryChipColors(),
+                    Platter(
+                        title = stringResource(R.string.settings_lan_host),
+                        subtitle = state.lanHostAddress,
+                        icon = R.drawable.ph_gear_six,
+                        iconTint = MorseColors.Grey,
                         onClick = launchLanHostInput,
                     )
                 }
@@ -90,11 +100,20 @@ fun SettingsScreen(
 
         item { ListHeader { Text(stringResource(R.string.settings_diagnostics_header)) } }
         item {
-            Chip(
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.settings_test_vibration)) },
-                colors = ChipDefaults.primaryChipColors(),
+            Platter(
+                title = stringResource(R.string.settings_test_vibration),
+                icon = R.drawable.ph_vibrate,
+                iconTint = MorseColors.Accent,
                 onClick = viewModel::testVibration,
+            )
+        }
+        item {
+            Text(
+                text = stringResource(if (state.aiOnline) R.string.settings_ai_online else R.string.settings_ai_offline),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                style = MaterialTheme.typography.caption2,
+                color = MaterialTheme.colors.onSurfaceVariant,
+                textAlign = TextAlign.Center,
             )
         }
     }

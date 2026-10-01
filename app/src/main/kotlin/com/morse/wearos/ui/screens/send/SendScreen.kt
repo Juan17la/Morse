@@ -1,16 +1,14 @@
 package com.morse.wearos.ui.screens.send
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.Text
 import com.morse.wearos.R
@@ -19,26 +17,46 @@ import com.morse.wearos.data.DefaultWords
 import com.morse.wearos.di.containerViewModel
 import com.morse.wearos.domain.ConnectionState
 import com.morse.wearos.ui.components.MorseScaffold
+import com.morse.wearos.ui.components.Platter
+import com.morse.wearos.ui.components.rememberTextInputLauncher
+import com.morse.wearos.ui.theme.MorseColors
 
 @Composable
 fun SendScreen(
     onSent: () -> Unit,
+    onDictated: (String) -> Unit,
     viewModel: SendViewModel = containerViewModel { SendViewModel(it.groupSession, it.wordsRepository) },
 ) {
     val customWords by viewModel.customWords.collectAsStateWithLifecycle()
     val connection by viewModel.connection.collectAsStateWithLifecycle()
     val connected = connection == ConnectionState.Connected
 
-    MorseScaffold {
-        item { ListHeader { Text(stringResource(R.string.send_title)) } }
+    // Wear's RemoteInput offers voice and keyboard; the result is condensed on the next screen.
+    val launchDictation = rememberTextInputLauncher(
+        label = stringResource(R.string.send_dictate_label),
+        onResult = onDictated,
+    )
+
+    MorseScaffold(title = stringResource(R.string.send_title)) {
         if (!connected) {
             item {
                 Text(stringResource(R.string.send_not_connected), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
             }
         }
+        item {
+            Platter(
+                title = stringResource(R.string.send_dictate),
+                subtitle = stringResource(R.string.send_dictate_hint),
+                icon = R.drawable.ph_microphone,
+                accent = true,
+                enabled = connected,
+                onClick = launchDictation,
+            )
+        }
+        item { ListHeader { Text(stringResource(R.string.send_quick_header)) } }
         items(DefaultWords.resources.size) { index ->
             val word = stringResource(DefaultWords.resources[index])
-            WordChip(word = word, enabled = connected, primary = true) { viewModel.send(word, onSent) }
+            WordChip(word = word, enabled = connected) { viewModel.send(word, onSent) }
         }
         if (customWords.isNotEmpty()) {
             item { ListHeader { Text(stringResource(R.string.send_custom_header)) } }
@@ -50,16 +68,23 @@ fun SendScreen(
     }
 }
 
-/** A word with its Morse underneath; shared with the Words screen. */
+/** A word with its Morse underneath; shared with the Words, Incoming and Condense screens. */
 @Composable
-fun WordChip(word: String, enabled: Boolean = true, primary: Boolean = false, onClick: () -> Unit) {
-    Chip(
-        modifier = Modifier.fillMaxWidth(),
-        label = { Text(word, maxLines = 1, overflow = TextOverflow.Ellipsis) },
-        secondaryLabel = {
-            Text(MorseCodec.encode(word), fontFamily = FontFamily.Monospace, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        colors = if (primary) ChipDefaults.primaryChipColors() else ChipDefaults.secondaryChipColors(),
+fun WordChip(
+    word: String,
+    enabled: Boolean = true,
+    accent: Boolean = false,
+    @DrawableRes icon: Int? = R.drawable.ph_paper_plane_tilt,
+    iconTint: Color = MorseColors.Blue,
+    onClick: () -> Unit,
+) {
+    Platter(
+        title = word,
+        subtitle = MorseCodec.encode(word),
+        monospaceSubtitle = true,
+        icon = icon,
+        iconTint = iconTint,
+        accent = accent,
         enabled = enabled,
         onClick = onClick,
     )

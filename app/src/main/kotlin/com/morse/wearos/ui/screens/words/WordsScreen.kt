@@ -2,9 +2,6 @@ package com.morse.wearos.ui.screens.words
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,13 +9,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
-import androidx.wear.compose.material.Chip
-import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.Text
@@ -30,8 +26,10 @@ import com.morse.wearos.data.DefaultWords
 import com.morse.wearos.data.WordsRepository
 import com.morse.wearos.di.containerViewModel
 import com.morse.wearos.ui.components.MorseScaffold
+import com.morse.wearos.ui.components.Platter
 import com.morse.wearos.ui.components.rememberTextInputLauncher
 import com.morse.wearos.ui.screens.send.WordChip
+import com.morse.wearos.ui.theme.MorseColors
 
 @Composable
 fun WordsScreen(viewModel: WordsViewModel = containerViewModel { WordsViewModel(it.wordsRepository) }) {
@@ -51,14 +49,12 @@ fun WordsScreen(viewModel: WordsViewModel = containerViewModel { WordsViewModel(
         }
     }
 
-    MorseScaffold {
-        item { ListHeader { Text(stringResource(R.string.words_title)) } }
+    MorseScaffold(title = stringResource(R.string.words_title)) {
         item {
-            Chip(
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.words_add)) },
-                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                colors = ChipDefaults.primaryChipColors(),
+            Platter(
+                title = stringResource(R.string.words_add),
+                icon = R.drawable.ph_plus,
+                accent = true,
                 onClick = launchAddWord,
             )
         }
@@ -69,11 +65,11 @@ fun WordsScreen(viewModel: WordsViewModel = containerViewModel { WordsViewModel(
         }
         items(customWords.size) { index ->
             val word = customWords[index]
-            WordChip(word = word, onClick = { pendingDelete = word })
+            WordChip(word = word, icon = R.drawable.ph_trash, iconTint = MorseColors.Red, onClick = { pendingDelete = word })
         }
         item { ListHeader { Text(stringResource(R.string.words_defaults_header)) } }
         items(DefaultWords.resources.size) { index ->
-            WordChip(word = stringResource(DefaultWords.resources[index]), enabled = false, onClick = {})
+            WordChip(word = stringResource(DefaultWords.resources[index]), icon = null, onClick = {})
         }
     }
 
@@ -88,7 +84,7 @@ fun WordsScreen(viewModel: WordsViewModel = containerViewModel { WordsViewModel(
             },
             positiveButton = {
                 Button(onClick = { viewModel.remove(word); pendingDelete = null }) {
-                    Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.action_delete))
+                    Icon(painterResource(R.drawable.ph_trash), contentDescription = stringResource(R.string.action_delete))
                 }
             },
         )

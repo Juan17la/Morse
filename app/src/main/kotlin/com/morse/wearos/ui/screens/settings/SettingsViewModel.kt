@@ -2,6 +2,7 @@ package com.morse.wearos.ui.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.morse.wearos.ai.MorseAssistant
 import com.morse.wearos.core.haptics.HapticPlayer
 import com.morse.wearos.core.morse.MorseCodec
 import com.morse.wearos.data.IdentityRepository
@@ -18,12 +19,14 @@ data class SettingsUiState(
     val hasNameOverride: Boolean = false,
     val transportMode: TransportMode = SettingsRepository.DEFAULT_TRANSPORT,
     val lanHostAddress: String = SettingsRepository.DEFAULT_LAN_HOST,
+    val aiOnline: Boolean = false,
 )
 
 class SettingsViewModel(
     private val identity: IdentityRepository,
     private val settings: SettingsRepository,
     private val haptics: HapticPlayer,
+    private val assistant: MorseAssistant,
 ) : ViewModel() {
 
     val uiState: StateFlow<SettingsUiState> = combine(
@@ -32,7 +35,7 @@ class SettingsViewModel(
         settings.transportMode,
         settings.lanHostAddress,
     ) { name, hasOverride, mode, lanHost ->
-        SettingsUiState(name, hasOverride, mode, lanHost)
+        SettingsUiState(name, hasOverride, mode, lanHost, assistant.isOnlineCapable)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     fun setName(name: String) {

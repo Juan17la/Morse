@@ -7,7 +7,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.morse.wearos.BuildConfig
 import com.morse.wearos.MorseApp
+import com.morse.wearos.ai.MorseAssistant
 import com.morse.wearos.core.haptics.HapticPlayer
 import com.morse.wearos.data.IdentityRepository
 import com.morse.wearos.data.SettingsRepository
@@ -26,6 +28,7 @@ class AppContainer(private val appContext: Context) {
     val wordsRepository: WordsRepository by lazy { WordsRepository(appContext) }
     val identityRepository: IdentityRepository by lazy { IdentityRepository(appContext) }
     val settingsRepository: SettingsRepository by lazy { SettingsRepository(appContext) }
+    val assistant: MorseAssistant by lazy { MorseAssistant(BuildConfig.GEMINI_API_KEY) }
     val groupSession: GroupSession by lazy {
         GroupSession(::transport, identityRepository, settingsRepository, hapticPlayer)
     }

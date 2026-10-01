@@ -6,6 +6,7 @@ import androidx.wear.compose.navigation.SwipeDismissableNavHost
 import androidx.wear.compose.navigation.composable
 import androidx.wear.compose.navigation.rememberSwipeDismissableNavController
 import com.morse.wearos.di.appContainer
+import com.morse.wearos.ui.screens.condense.CondenseScreen
 import com.morse.wearos.ui.screens.group.GroupScreen
 import com.morse.wearos.ui.screens.home.HomeScreen
 import com.morse.wearos.ui.screens.incoming.IncomingScreen
@@ -51,9 +52,18 @@ fun MorseNavHost() {
             )
         }
         composable(Routes.SEND) {
-            SendScreen(onSent = { navController.popBackStack() })
+            SendScreen(
+                onSent = { navController.popBackStack() },
+                onDictated = { navController.navigate(Routes.condense(it)) },
+            )
         }
-        composable(Routes.INCOMING) { IncomingScreen() }
+        composable(Routes.CONDENSE) { entry ->
+            CondenseScreen(
+                text = entry.arguments?.getString(Routes.CONDENSE_ARG).orEmpty(),
+                onSent = { navController.popBackStack(Routes.GROUP, inclusive = false) },
+            )
+        }
+        composable(Routes.INCOMING) { IncomingScreen(onReplied = { navController.popBackStack() }) }
         composable(Routes.WORDS) { WordsScreen() }
         composable(Routes.SETTINGS) { SettingsScreen() }
     }

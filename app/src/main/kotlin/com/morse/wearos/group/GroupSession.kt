@@ -28,6 +28,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 private const val TAG = "GroupSession"
+private const val HISTORY_SIZE = 10
 
 /** App-scoped owner of the active group: swaps transports, relays state and plays haptics. */
 class GroupSession(
@@ -49,6 +50,10 @@ class GroupSession(
 
     private val _lastMessage = MutableStateFlow<MorseMessage?>(null)
     val lastMessage: StateFlow<MorseMessage?> = _lastMessage.asStateFlow()
+
+    /** Recent group messages (ours included), oldest first; context for smart replies. */
+    private val _history = MutableStateFlow<List<MorseMessage>>(emptyList())
+    val history: StateFlow<List<MorseMessage>> = _history.asStateFlow()
 
     /** Messages from other members; the local echo of our own sends is filtered out. */
     private val _received = MutableSharedFlow<MorseMessage>(extraBufferCapacity = 8)
@@ -105,6 +110,7 @@ class GroupSession(
         transport = null
         _group.value = null
         _lastMessage.value = null
+        _history.value = emptyList()
         _state.value = ConnectionState.Idle
     }
 
@@ -127,6 +133,8 @@ class GroupSession(
     }
 
     private fun onMessage(message: MorseMessage) {
+        // History first: lastMessage observers read it to build smart-reply context.
+        _history.update { (it + message).takeLast(HISTORY_SIZE) }
         _lastMessage.value = message
         if (message.senderId != selfId) {
             haptics.play(message.morse)

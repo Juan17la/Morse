@@ -20,6 +20,8 @@
     <string name="group_member_host">Anfitrión</string>
     <string name="group_member_you">Tú</string>
     <string name="group_send">Enviar mensaje</string>
+    <string name="group_service_channel">Conexión del grupo</string>
+    <string name="group_service_text">Conectado a tu grupo</string>
     <string name="group_leave">Salir del grupo</string>
 
     <string name="join_title">Ingresa el código</string>
@@ -70,4 +72,21 @@
     <string name="settings_lan_host_input_label">IP del host</string>
     <string name="settings_diagnostics_header">Diagnóstico</string>
     <string name="settings_test_vibration">Probar vibración (SOS)</string>
+
+    <string name="send_dictate">Dictar</string>
+    <string name="send_dictate_hint">La IA lo acorta para Morse</string>
+    <string name="send_dictate_label">Di tu mensaje</string>
+    <string name="send_quick_header">Palabras rápidas</string>
+
+    <string name="condense_title">Acortado</string>
+    <string name="condense_shortened">Enviar esto</string>
+    <string name="condense_seconds">Vibración: %1$d s → %2$d s</string>
+    <string name="condense_as_dictated">Tal como lo dictaste</string>
+
+    <string name="incoming_quick_replies">Responder</string>
+
+    <string name="ai_badge">IA</string>
+    <string name="ai_badge_offline">Sin conexión</string>
+    <string name="settings_ai_online">IA: Gemini (respaldo sin conexión si no hay internet)</string>
+    <string name="settings_ai_offline">IA: modo sin conexión (esta versión no tiene clave de Gemini)</string>
 </resources>
