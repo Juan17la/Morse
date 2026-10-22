@@ -2,6 +2,7 @@
 <resources>
     <string name="home_current_group">Grupo actual</string>
     <string name="home_current_group_code">Código %1$s</string>
+    <string name="home_start">Empezar</string>
     <string name="home_create_group">Crear grupo</string>
     <string name="home_join_group">Unirse a grupo</string>
     <string name="home_my_words">Mis palabras</string>
@@ -16,6 +17,7 @@
     <string name="permission_wifi_rationale">Wi-Fi Direct necesita el permiso de dispositivos cercanos para encontrar otros relojes.</string>
 
     <string name="group_access_code">Código de acceso</string>
+    <string name="group_share_hint">Comparte este código con tu grupo</string>
     <string name="group_members">Miembros %1$d / %2$d</string>
     <string name="group_member_host">Anfitrión</string>
     <string name="group_member_you">Tú</string>
@@ -35,6 +37,9 @@
     <string name="send_custom_header">Mis palabras</string>
 
     <string name="incoming_from">De %1$s</string>
+    <string name="incoming_short">Vibración corta</string>
+    <string name="incoming_long">Vibración larga</string>
+    <string name="incoming_pass_on">Reenviar</string>
     <string name="incoming_replay">Repetir</string>
     <string name="incoming_empty">Aún no hay mensajes</string>
 
@@ -89,4 +94,6 @@
     <string name="ai_badge_offline">Sin conexión</string>
     <string name="settings_ai_online">IA: Gemini (respaldo sin conexión si no hay internet)</string>
     <string name="settings_ai_offline">IA: modo sin conexión (esta versión no tiene clave de Gemini)</string>
+    <string name="settings_language_header">Idioma</string>
+    <string name="language_system">Predeterminado del sistema</string>
 </resources>

@@ -44,6 +44,8 @@ class IncomingViewModel(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), Replies.None)
 
+    val selfId: String? get() = session.selfId
+
     fun replay() = session.replayLast()
 
     fun reply(word: String, onSent: () -> Unit) {
