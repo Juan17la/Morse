@@ -53,7 +53,7 @@ class MorseAssistantTest {
 
     @Test
     fun withoutKeyEverythingFallsBackOffline() = runTest {
-        val assistant = MorseAssistant(apiKey = "", language = "en")
+        val assistant = MorseAssistant(apiKey = "", languageOverride = "en")
         assertFalse(assistant.condense("see you at the gym at 5").fromAi)
         val msg = MorseMessage("1", "a", "Ana", "Where", ".-- ....", 0)
         val replies = assistant.replies(msg, listOf(msg))
