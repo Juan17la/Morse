@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.wear.compose.material.ListHeader
+import com.morse.wearos.ui.components.SectionHeader
 import androidx.wear.compose.material.Text
 import com.morse.wearos.R
 import com.morse.wearos.core.morse.MorseCodec
@@ -37,7 +37,7 @@ fun SendScreen(
         onResult = onDictated,
     )
 
-    MorseScaffold(title = stringResource(R.string.send_title)) {
+    MorseScaffold(title = stringResource(R.string.send_title), glow = MorseColors.Blue) {
         if (!connected) {
             item {
                 Text(stringResource(R.string.send_not_connected), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
@@ -53,13 +53,13 @@ fun SendScreen(
                 onClick = launchDictation,
             )
         }
-        item { ListHeader { Text(stringResource(R.string.send_quick_header)) } }
+        item { SectionHeader(stringResource(R.string.send_quick_header)) }
         items(DefaultWords.resources.size) { index ->
             val word = stringResource(DefaultWords.resources[index])
             WordChip(word = word, enabled = connected) { viewModel.send(word, onSent) }
         }
         if (customWords.isNotEmpty()) {
-            item { ListHeader { Text(stringResource(R.string.send_custom_header)) } }
+            item { SectionHeader(stringResource(R.string.send_custom_header)) }
             items(customWords.size) { index ->
                 val word = customWords[index]
                 WordChip(word = word, enabled = connected) { viewModel.send(word, onSent) }

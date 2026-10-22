@@ -24,6 +24,7 @@ import sys
 import threading
 import time
 import uuid
+from collections import deque
 
 PORT = 8765
 MAX_MEMBERS = 3  # GroupConfig.MAX_MEMBERS
@@ -80,6 +81,8 @@ class Host:
         self.bots = [member(f'pc-bot-{i}', n[:MAX_NAME_LENGTH], i == 0) for i, n in enumerate(bot_names)]
         self.clients = {}  # member id -> (member, socket)
         self.lock = threading.Lock()
+        self.auto_reply = True
+        self.log = deque(maxlen=200)  # every message seen, newest last; read by morse_panel.py
 
     def members(self):
         with self.lock:
@@ -100,6 +103,7 @@ class Host:
     def bot_says(self, bot, word):
         msg = message(bot, word)
         print(f'  [{bot["name"]}] {word}   {msg["morse"]}')
+        self.log.append(msg)
         self.broadcast({'type': 'message', 'message': msg})
 
     def serve(self):
@@ -146,8 +150,9 @@ class Host:
                 if env['type'] == 'message':
                     msg = env['message']
                     print(f'  [{msg["senderName"]}] {msg["word"]}   {msg["morse"]}')
+                    self.log.append(msg)
                     self.broadcast(env, except_id=joiner['id'])
-                    if self.bots:
+                    if self.bots and self.auto_reply:
                         threading.Timer(random.uniform(2, 4), self.bot_says,
                                         args=(random.choice(self.bots), bot_reply(msg['word']))).start()
         except (OSError, ValueError):

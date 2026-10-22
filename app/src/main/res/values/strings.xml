@@ -4,6 +4,7 @@
 
     <string name="home_current_group">Current group</string>
     <string name="home_current_group_code">Code %1$s</string>
+    <string name="home_start">Get started</string>
     <string name="home_create_group">Create group</string>
     <string name="home_join_group">Join group</string>
     <string name="home_my_words">My words</string>
@@ -18,6 +19,7 @@
     <string name="permission_wifi_rationale">Wi-Fi Direct needs the nearby devices permission to find other watches.</string>
 
     <string name="group_access_code">Access code</string>
+    <string name="group_share_hint">Share this code with your group</string>
     <string name="group_members">Members %1$d / %2$d</string>
     <string name="group_member_host">Host</string>
     <string name="group_member_you">You</string>
@@ -37,6 +39,9 @@
     <string name="send_custom_header">My words</string>
 
     <string name="incoming_from">From %1$s</string>
+    <string name="incoming_short">Short buzz</string>
+    <string name="incoming_long">Long buzz</string>
+    <string name="incoming_pass_on">Pass it on</string>
     <string name="incoming_replay">Replay</string>
     <string name="incoming_empty">No messages yet</string>
 
@@ -92,4 +97,8 @@
     <string name="ai_badge_offline">Offline</string>
     <string name="settings_ai_online">AI: Gemini (offline fallback when no internet)</string>
     <string name="settings_ai_offline">AI: offline mode (no Gemini key in this build)</string>
+    <string name="settings_language_header">Language</string>
+    <string name="language_system">System default</string>
+    <string name="language_en" translatable="false">English</string>
+    <string name="language_es" translatable="false">Español</string>
 </resources>

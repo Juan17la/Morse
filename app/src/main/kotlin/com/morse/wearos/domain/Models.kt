@@ -12,6 +12,15 @@ object GroupConfig {
 fun cleanMemberName(raw: String): String =
     raw.trim().replace(Regex("\\s+"), " ").take(GroupConfig.MAX_NAME_LENGTH).trim().ifEmpty { "?" }
 
+/**
+ * What the UI shows for a member: the first word, cut with an ellipsis past [max] characters,
+ * so "Juan Diego's Galaxy Watch" reads "Juan" and every name fits one line on a small face.
+ */
+fun shortName(name: String, max: Int = 10): String {
+    val first = name.trim().substringBefore(' ').ifEmpty { "?" }
+    return if (first.length <= max) first else first.take(max - 1).trimEnd() + "…"
+}
+
 @Serializable
 data class Member(
     val id: String,

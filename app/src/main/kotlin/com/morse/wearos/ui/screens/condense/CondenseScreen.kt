@@ -11,7 +11,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.CircularProgressIndicator
-import androidx.wear.compose.material.ListHeader
+import com.morse.wearos.ui.components.SectionHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 import com.morse.wearos.R
@@ -30,7 +30,7 @@ fun CondenseScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    MorseScaffold(title = stringResource(R.string.condense_title)) {
+    MorseScaffold(title = stringResource(R.string.condense_title), glow = MorseColors.Purple) {
         item {
             Text(
                 text = "“${state.original}”",
@@ -62,7 +62,7 @@ fun CondenseScreen(
 
         val original = state.originalSendable
         if (original != null && original != suggestion?.text) {
-            item { ListHeader { Text(stringResource(R.string.condense_as_dictated)) } }
+            item { SectionHeader(stringResource(R.string.condense_as_dictated)) }
             item { WordChip(word = original) { viewModel.send(original, onSent) } }
         }
     }
