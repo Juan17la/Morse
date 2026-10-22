@@ -32,8 +32,10 @@ data class Suggestion(val text: String, val fromAi: Boolean)
  */
 class MorseAssistant(
     private val apiKey: String,
-    private val language: String = Locale.getDefault().language,
+    private val languageOverride: String? = null,
 ) {
+    // Read on each call so an in-app language change applies without a restart.
+    private val language: String get() = languageOverride ?: Locale.getDefault().language
     val isOnlineCapable: Boolean get() = apiKey.isNotBlank()
 
     suspend fun condense(text: String): Suggestion {

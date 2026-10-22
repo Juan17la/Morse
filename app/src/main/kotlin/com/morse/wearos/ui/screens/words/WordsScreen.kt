@@ -16,7 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.ListHeader
+import com.morse.wearos.ui.components.SectionHeader
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.dialog.Alert
 import androidx.wear.compose.material.dialog.Dialog
@@ -49,7 +49,7 @@ fun WordsScreen(viewModel: WordsViewModel = containerViewModel { WordsViewModel(
         }
     }
 
-    MorseScaffold(title = stringResource(R.string.words_title)) {
+    MorseScaffold(title = stringResource(R.string.words_title), glow = MorseColors.Purple) {
         item {
             Platter(
                 title = stringResource(R.string.words_add),
@@ -67,7 +67,7 @@ fun WordsScreen(viewModel: WordsViewModel = containerViewModel { WordsViewModel(
             val word = customWords[index]
             WordChip(word = word, icon = R.drawable.ph_trash, iconTint = MorseColors.Red, onClick = { pendingDelete = word })
         }
-        item { ListHeader { Text(stringResource(R.string.words_defaults_header)) } }
+        item { SectionHeader(stringResource(R.string.words_defaults_header)) }
         items(DefaultWords.resources.size) { index ->
             WordChip(word = stringResource(DefaultWords.resources[index]), icon = null, onClick = {})
         }

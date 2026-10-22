@@ -1,23 +1,27 @@
 package com.morse.wearos.ui.screens.settings
 
+import android.app.Activity
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.wear.compose.material.ListHeader
+import com.morse.wearos.ui.components.SectionHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.RadioButton
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.ToggleChipDefaults
 import com.morse.wearos.R
+import com.morse.wearos.data.AppLanguage
 import com.morse.wearos.data.TransportMode
 import com.morse.wearos.di.containerViewModel
 import com.morse.wearos.transport.IS_DEMO
@@ -33,6 +37,8 @@ fun SettingsScreen(
     },
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val language = remember { AppLanguage.get(context) }
 
     val launchNameInput = rememberTextInputLauncher(
         label = stringResource(R.string.settings_name_input_label),
@@ -43,7 +49,7 @@ fun SettingsScreen(
         onResult = viewModel::setLanHostAddress,
     )
 
-    MorseScaffold(title = stringResource(R.string.settings_title)) {
+    MorseScaffold(title = stringResource(R.string.settings_title), glow = MorseColors.Indigo) {
 
         item {
             Platter(
@@ -67,23 +73,10 @@ fun SettingsScreen(
 
         // Demo builds always simulate, so the connection choice would do nothing there.
         if (!IS_DEMO) {
-            item { ListHeader { Text(stringResource(R.string.settings_transport_header)) } }
+            item { SectionHeader(stringResource(R.string.settings_transport_header)) }
             items(TransportMode.entries.size) { index ->
                 val mode = TransportMode.entries[index]
-                ToggleChip(
-                    modifier = Modifier.fillMaxWidth(),
-                    checked = state.transportMode == mode,
-                    onCheckedChange = { if (it) viewModel.setTransportMode(mode) },
-                    label = { Text(stringResource(mode.labelRes()), maxLines = 2, overflow = TextOverflow.Ellipsis) },
-                    toggleControl = { RadioButton(selected = state.transportMode == mode) },
-                    colors = ToggleChipDefaults.toggleChipColors(
-                        checkedStartBackgroundColor = MorseColors.Platter,
-                        checkedEndBackgroundColor = MorseColors.Platter,
-                        uncheckedStartBackgroundColor = MorseColors.Platter,
-                        uncheckedEndBackgroundColor = MorseColors.Platter,
-                    ),
-                    shape = RoundedCornerShape(22.dp),
-                )
+                RadioChip(stringResource(mode.labelRes()), state.transportMode == mode) { viewModel.setTransportMode(mode) }
             }
             if (state.transportMode == TransportMode.LAN) {
                 item {
@@ -98,7 +91,16 @@ fun SettingsScreen(
             }
         }
 
-        item { ListHeader { Text(stringResource(R.string.settings_diagnostics_header)) } }
+        item { SectionHeader(stringResource(R.string.settings_language_header)) }
+        items(AppLanguage.TAGS.size) { index ->
+            val tag = AppLanguage.TAGS[index]
+            RadioChip(stringResource(languageLabel(tag)), language == tag) {
+                AppLanguage.set(context, tag)
+                (context as? Activity)?.recreate()
+            }
+        }
+
+        item { SectionHeader(stringResource(R.string.settings_diagnostics_header)) }
         item {
             Platter(
                 title = stringResource(R.string.settings_test_vibration),
@@ -117,6 +119,30 @@ fun SettingsScreen(
             )
         }
     }
+}
+
+@Composable
+private fun RadioChip(label: String, selected: Boolean, onSelect: () -> Unit) {
+    ToggleChip(
+        modifier = Modifier.fillMaxWidth(),
+        checked = selected,
+        onCheckedChange = { if (it) onSelect() },
+        label = { Text(label, maxLines = 2, overflow = TextOverflow.Ellipsis) },
+        toggleControl = { RadioButton(selected = selected) },
+        colors = ToggleChipDefaults.toggleChipColors(
+            checkedStartBackgroundColor = MorseColors.Indigo.copy(alpha = 0.45f),
+            checkedEndBackgroundColor = MorseColors.PlatterHigh,
+            uncheckedStartBackgroundColor = MorseColors.Platter,
+            uncheckedEndBackgroundColor = MorseColors.Platter,
+        ),
+        shape = RoundedCornerShape(24.dp),
+    )
+}
+
+private fun languageLabel(tag: String): Int = when (tag) {
+    "en" -> R.string.language_en
+    "es" -> R.string.language_es
+    else -> R.string.language_system
 }
 
 private fun TransportMode.labelRes(): Int = when (this) {
