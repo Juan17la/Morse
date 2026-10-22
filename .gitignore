@@ -15,3 +15,6 @@ captures/
 .externalNativeBuild
 .cxx
 local.properties
+
+# Python
+__pycache__/

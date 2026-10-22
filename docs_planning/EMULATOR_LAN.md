@@ -72,6 +72,19 @@ Every message you send gets a bot reply 2–4 s later. Type `luis: on my way` in
 make a bot speak, `/members` to list the group, `/quit` to end it. Stop it before running the
 unit tests: `SocketGroupTransportTest` binds the same port 8765.
 
+### Control panel
+
+`tools/morse_panel.py` runs the same simulator with a small web UI (opens `http://localhost:8080`):
+pick which bot talks, type a word (live Morse preview) or tap a preset — *Normal*, *Silly*, or
+*Mine* (words you save, kept in the browser) — and it lands on the emulator's Incoming screen.
+It also shows the members, the conversation, and an auto-reply switch.
+
+```sh
+python3 tools/morse_panel.py                       # random code, bots Ana + Luis
+python3 tools/morse_panel.py --code 1234 --port 8090 --no-browser
+python3 tools/morse_panel.py --selftest
+```
+
 ## 4. AI features (Gemini free tier)
 
 **Dictate** (Send screen) condenses a spoken sentence to 20 characters or fewer, because each
