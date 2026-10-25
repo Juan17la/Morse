@@ -80,6 +80,7 @@ import com.morse.wearos.ui.theme.MorseColors
 import com.morse.wearos.ui.theme.MorseGradients
 import com.morse.wearos.ui.theme.avatarColor
 import com.morse.wearos.ui.theme.morseSpring
+import com.morse.wearos.ui.theme.rememberReduceMotion
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -300,7 +301,7 @@ private fun StatusDot(connection: ConnectionState) {
         },
         label = "status",
     )
-    val breathing = connection == ConnectionState.Creating || connection == ConnectionState.Joining
+    val breathing = !rememberReduceMotion() && (connection == ConnectionState.Creating || connection == ConnectionState.Joining)
     val pulse by rememberInfiniteTransition(label = "pulse").animateFloat(
         initialValue = 1f,
         targetValue = 0.25f,

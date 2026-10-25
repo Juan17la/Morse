@@ -29,7 +29,7 @@ object MorseColors {
     val Purple = Color(0xFFBF5AF2)
     val Indigo = Color(0xFF5E5CE6)
     val Pink = Color(0xFFFF375F)
-    val Grey = Color(0xFF636366)
+    val Grey = Color(0xFF7C7C80)
     val Red = Color(0xFFFF453A)
 
     /** Avatar tints, picked per name so each member keeps a colour across screens. */
