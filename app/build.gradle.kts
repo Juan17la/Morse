@@ -14,8 +14,8 @@ android {
         applicationId = "com.morse.wearos"
         minSdk = 30
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.1"
 
         // Free key from https://aistudio.google.com/apikey, set GEMINI_API_KEY=... in local.properties
         // (gitignored). Empty means the AI features use their offline fallback.
