@@ -9,6 +9,7 @@ object Routes {
     const val INCOMING = "incoming"
     const val WORDS = "words"
     const val SETTINGS = "settings"
+    const val LEARN = "learn"
 
     const val CONDENSE_ARG = "text"
     const val CONDENSE = "condense/{$CONDENSE_ARG}"

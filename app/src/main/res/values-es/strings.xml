@@ -115,4 +115,12 @@
     <string name="signal_failed">No enviado</string>
     <string name="signal_member_left">Alguien salió</string>
     <string name="signal_lost">Conexión perdida</string>
+    <string name="learn_title">Aprende Morse</string>
+    <string name="learn_subtitle">Siéntelo despacio</string>
+    <string name="learn_intro">Toca repetir: SOS vibra despacio mientras se ilumina cada pulso.</string>
+    <string name="learn_beats_header">Cuenta en pulsos</string>
+    <string name="learn_dot">Vibración corta: 1 pulso</string>
+    <string name="learn_dash">Vibración larga: 3 pulsos</string>
+    <string name="learn_letter_gap">Pausa entre letras: 3</string>
+    <string name="learn_word_gap">Pausa entre palabras: 7</string>
 </resources>

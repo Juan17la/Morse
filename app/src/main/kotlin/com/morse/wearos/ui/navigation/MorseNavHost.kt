@@ -28,6 +28,7 @@ import com.morse.wearos.ui.screens.incoming.IncomingScreen
 import com.morse.wearos.ui.screens.join.JoinScreen
 import com.morse.wearos.ui.screens.send.SendScreen
 import com.morse.wearos.ui.screens.settings.SettingsScreen
+import com.morse.wearos.ui.screens.learn.LearnScreen
 import com.morse.wearos.ui.screens.welcome.WelcomeScreen
 import com.morse.wearos.ui.screens.words.WordsScreen
 
@@ -103,7 +104,8 @@ fun MorseNavHost() {
         }
         composable(Routes.INCOMING) { IncomingScreen(onReplied = { navController.popBackStack() }) }
         composable(Routes.WORDS) { WordsScreen() }
-        composable(Routes.SETTINGS) { SettingsScreen() }
+        composable(Routes.SETTINGS) { SettingsScreen(onLearn = { navController.navigate(Routes.LEARN) }) }
+        composable(Routes.LEARN) { LearnScreen() }
     }
     PulseBorder(buzzing)
     }

@@ -34,6 +34,7 @@ import com.morse.wearos.ui.theme.MorseColors
 
 @Composable
 fun SettingsScreen(
+    onLearn: () -> Unit,
     viewModel: SettingsViewModel = containerViewModel {
         SettingsViewModel(it.identityRepository, it.settingsRepository, it.hapticPlayer, it.assistant)
     },
@@ -70,6 +71,16 @@ fun SettingsScreen(
                     onClick = viewModel::resetName,
                 )
             }
+        }
+
+        item {
+            Platter(
+                title = stringResource(R.string.learn_title),
+                subtitle = stringResource(R.string.learn_subtitle),
+                icon = R.drawable.ph_sparkle,
+                iconTint = MorseColors.Teal,
+                onClick = onLearn,
+            )
         }
 
         // Feeling one is the fastest way to understand what the app does.

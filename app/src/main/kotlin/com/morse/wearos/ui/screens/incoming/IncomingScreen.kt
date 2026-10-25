@@ -195,12 +195,12 @@ internal fun ReplayButton(onClick: () -> Unit) {
 internal class Playback(val active: Int, val finished: Boolean, val dash: Boolean)
 
 @Composable
-internal fun rememberPlayback(messageId: String?, morse: String, playToken: Int): Playback {
+internal fun rememberPlayback(messageId: String?, morse: String, playToken: Int, unitMs: Long = MorseTiming.DEFAULT_UNIT_MS): Playback {
     var active by remember(messageId) { mutableIntStateOf(-1) }
     var finished by remember(messageId) { mutableStateOf(false) }
     LaunchedEffect(messageId, playToken) {
         finished = false
-        for (step in MorseTiming.steps(morse)) {
+        for (step in MorseTiming.steps(morse, unitMs)) {
             active = if (step.on) step.symbolIndex else -1
             delay(step.durationMs)
         }

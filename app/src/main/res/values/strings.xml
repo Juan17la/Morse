@@ -120,4 +120,12 @@
     <string name="signal_failed">Not sent</string>
     <string name="signal_member_left">Someone left</string>
     <string name="signal_lost">Connection lost</string>
+    <string name="learn_title">Learn Morse</string>
+    <string name="learn_subtitle">Feel it slowly</string>
+    <string name="learn_intro">Tap replay: SOS buzzes slowly while each beat lights up.</string>
+    <string name="learn_beats_header">Count in beats</string>
+    <string name="learn_dot">Short buzz: 1 beat</string>
+    <string name="learn_dash">Long buzz: 3 beats</string>
+    <string name="learn_letter_gap">Pause between letters: 3</string>
+    <string name="learn_word_gap">Pause between words: 7</string>
 </resources>
