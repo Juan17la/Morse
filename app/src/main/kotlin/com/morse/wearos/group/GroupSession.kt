@@ -2,6 +2,7 @@ package com.morse.wearos.group
 
 import android.util.Log
 import com.morse.wearos.core.haptics.HapticPlayer
+import com.morse.wearos.core.haptics.HapticSignal
 import com.morse.wearos.core.morse.MorseCodec
 import com.morse.wearos.data.IdentityRepository
 import com.morse.wearos.data.SettingsRepository
@@ -102,8 +103,8 @@ class GroupSession(
             timestampMs = System.currentTimeMillis(),
         )
         return runCatching { t.send(message) }
-            .onSuccess { haptics.tick() }
-            .onFailure { fail(it) }
+            .onSuccess { haptics.signal(HapticSignal.Sent) }
+            .onFailure { haptics.signal(HapticSignal.Failed); fail(it) }
             .isSuccess
     }
 
@@ -129,11 +130,23 @@ class GroupSession(
         val t = createTransport(mode)
         transport = t
         collectors = listOf(
-            scope.launch { t.state.collect { _state.value = it } },
-            scope.launch { t.members.collect { m -> _group.update { it?.copy(members = m) } } },
+            scope.launch { t.state.collect { signalStateChange(_state.value, it); _state.value = it } },
+            scope.launch {
+                t.members.collect { m ->
+                    if (m.size < (_group.value?.members?.size ?: 0)) haptics.signal(HapticSignal.MemberLeft)
+                    _group.update { it?.copy(members = m) }
+                }
+            },
             scope.launch { t.incoming.collect { onMessage(it) } },
         )
         return t
+    }
+
+    private fun signalStateChange(from: ConnectionState, to: ConnectionState) {
+        when {
+            to == ConnectionState.Connected && from != ConnectionState.Connected -> haptics.signal(HapticSignal.Joined)
+            to is ConnectionState.Error && from == ConnectionState.Connected -> haptics.signal(HapticSignal.Lost)
+        }
     }
 
     private fun onMessage(message: MorseMessage) {

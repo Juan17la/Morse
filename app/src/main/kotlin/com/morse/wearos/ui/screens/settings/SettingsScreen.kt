@@ -21,6 +21,7 @@ import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.ToggleChipDefaults
 import com.morse.wearos.R
+import com.morse.wearos.core.haptics.HapticSignal
 import com.morse.wearos.core.morse.MorseCodec
 import com.morse.wearos.data.AppLanguage
 import com.morse.wearos.data.TransportMode
@@ -82,6 +83,16 @@ fun SettingsScreen(
                 onClick = viewModel::testVibration,
             )
         }
+        item { SectionHeader(stringResource(R.string.settings_signals_header)) }
+        items(SIGNALS.size) { index ->
+            val (signal, label, tint) = SIGNALS[index]
+            Platter(
+                title = stringResource(label),
+                icon = R.drawable.ph_vibrate,
+                iconTint = tint,
+                onClick = { viewModel.feel(signal) },
+            )
+        }
         item { SectionHeader(stringResource(R.string.settings_language_header)) }
         items(AppLanguage.TAGS.size) { index ->
             val tag = AppLanguage.TAGS[index]
@@ -121,6 +132,14 @@ fun SettingsScreen(
         }
     }
 }
+
+private val SIGNALS = listOf(
+    Triple(HapticSignal.Joined, R.string.signal_joined, MorseColors.Green),
+    Triple(HapticSignal.Sent, R.string.signal_sent, MorseColors.Blue),
+    Triple(HapticSignal.Failed, R.string.signal_failed, MorseColors.Red),
+    Triple(HapticSignal.MemberLeft, R.string.signal_member_left, MorseColors.Purple),
+    Triple(HapticSignal.Lost, R.string.signal_lost, MorseColors.Grey),
+)
 
 @Composable
 private fun RadioChip(label: String, selected: Boolean, onSelect: () -> Unit) {

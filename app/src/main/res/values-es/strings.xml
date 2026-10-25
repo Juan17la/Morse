@@ -110,4 +110,10 @@
     <string name="welcome_felt">Acabas de sentir “%1$s” en Morse.</string>
     <string name="welcome_name">Los demás te ven como</string>
     <string name="welcome_start">Empezar</string>
+    <string name="settings_signals_header">Señales que sientes</string>
+    <string name="signal_joined">Conectado</string>
+    <string name="signal_sent">Enviado</string>
+    <string name="signal_failed">No enviado</string>
+    <string name="signal_member_left">Alguien salió</string>
+    <string name="signal_lost">Conexión perdida</string>
 </resources>
