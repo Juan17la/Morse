@@ -61,6 +61,7 @@ import com.morse.wearos.ui.theme.MorseColors
 import com.morse.wearos.ui.theme.MorseGradients
 import com.morse.wearos.ui.theme.avatarColor
 import com.morse.wearos.ui.theme.morseSpring
+import com.morse.wearos.ui.theme.rememberReduceMotion
 import kotlinx.coroutines.delay
 
 @Composable
@@ -73,6 +74,7 @@ fun IncomingScreen(
     val connection by viewModel.connection.collectAsStateWithLifecycle()
     var playToken by remember { mutableIntStateOf(0) }
     val compact = isCompactScreen()
+    val reduceMotion = rememberReduceMotion()
     val current = message
     val playback = rememberPlayback(current?.id, current?.morse.orEmpty(), playToken)
     val reply = rememberSendWithFeedback(viewModel::reply, onReplied)
@@ -95,7 +97,7 @@ fun IncomingScreen(
         }
         item {
             // Keyed by message so each new arrival pops in on a spring.
-            val pop = remember(current.id) { Animatable(0.6f) }
+            val pop = remember(current.id) { Animatable(if (reduceMotion) 1f else 0.6f) }
             LaunchedEffect(current.id) { pop.animateTo(1f, morseSpring()) }
             Column(
                 modifier = Modifier.fillMaxWidth().graphicsLayer {

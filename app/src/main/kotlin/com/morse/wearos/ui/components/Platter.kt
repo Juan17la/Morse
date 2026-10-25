@@ -1,7 +1,6 @@
 package com.morse.wearos.ui.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -19,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -28,7 +26,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -45,6 +42,7 @@ import com.morse.wearos.ui.theme.MorseColors
 import com.morse.wearos.ui.theme.MorseGradients
 import com.morse.wearos.ui.theme.avatarColor
 import com.morse.wearos.ui.theme.morseSpring
+import com.morse.wearos.ui.theme.rememberReduceMotion
 
 private val PlatterShape = RoundedCornerShape(24.dp)
 private val IconSize = 30.dp
@@ -52,7 +50,7 @@ private val IconSize = 30.dp
 /**
  * The watchOS list cell: a softly lit platter with a glossy tinted glyph. [accent] paints it with
  * the sunrise gradient for the screen's main action. Pressing shrinks it on a spring instead of
- * a ripple, and it rises into place the first time it is composed.
+ * a ripple,.
  * [avatar] replaces the glyph with the name's initial, for people.
  */
 @Composable
@@ -70,20 +68,16 @@ fun Platter(
 ) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    val pressScale by animateFloatAsState(if (pressed) 0.94f else 1f, morseSpring(), label = "press")
-    val entrance = remember { Animatable(0f) }
-    LaunchedEffect(Unit) { entrance.animateTo(1f, morseSpring()) }
-    val rise = with(LocalDensity.current) { 14.dp.toPx() }
+    val reduceMotion = rememberReduceMotion()
+    val pressScale by animateFloatAsState(if (pressed && !reduceMotion) 0.96f else 1f, morseSpring(), label = "press")
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .graphicsLayer {
-                val s = pressScale * (0.92f + 0.08f * entrance.value)
-                scaleX = s
-                scaleY = s
-                translationY = (1f - entrance.value) * rise
-                alpha = entrance.value.coerceIn(0f, 1f) * if (enabled) 1f else 0.38f
+                scaleX = pressScale
+                scaleY = pressScale
+                alpha = if (enabled) 1f else 0.38f
             }
             .clip(PlatterShape)
             .background(if (accent) MorseGradients.Accent else MorseGradients.Platter)

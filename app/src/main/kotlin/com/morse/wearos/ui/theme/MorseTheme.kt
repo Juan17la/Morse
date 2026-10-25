@@ -2,7 +2,10 @@ package com.morse.wearos.ui.theme
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import android.provider.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
@@ -83,4 +86,11 @@ private val typography = Typography().run {
 @Composable
 fun MorseTheme(content: @Composable () -> Unit) {
     MaterialTheme(colors = colors, typography = typography, content = content)
+}
+
+/** True when the system "Remove animations" (animator scale 0) is on; decorative motion should then be skipped. */
+@Composable
+fun rememberReduceMotion(): Boolean {
+    val resolver = LocalContext.current.contentResolver
+    return remember { Settings.Global.getFloat(resolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }
 }

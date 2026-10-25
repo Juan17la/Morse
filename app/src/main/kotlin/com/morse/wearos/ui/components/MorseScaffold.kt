@@ -37,7 +37,7 @@ import com.morse.wearos.ui.theme.MorseColors
 /**
  * Standard list screen. Margins follow the Wear responsive guidance (a percentage of the
  * screen, wider on round faces where the corners are cut), so every size gets the same layout.
- * [title] is the watchOS-style large gradient title (left-aligned on square faces, centred on round).
+ * [title] is the large tinted title (left-aligned on square faces, centred on round).
  * [glow] tints a soft light that falls from the top of the face; changing it cross-fades.
  */
 @Composable
@@ -72,9 +72,8 @@ fun MorseScaffold(
                     Text(
                         text = title,
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-                        style = MaterialTheme.typography.title2.copy(
-                            brush = Brush.linearGradient(listOf(lerp(glow, Color.White, 0.4f), glow)),
-                        ),
+                        style = MaterialTheme.typography.title2,
+                        color = lerp(glow, Color.White, 0.55f),
                         textAlign = if (round) TextAlign.Center else TextAlign.Start,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -94,7 +93,7 @@ fun TopGlow(color: Color) {
         Modifier.fillMaxSize().drawBehind {
             drawRect(
                 Brush.radialGradient(
-                    colors = listOf(glowColor.copy(alpha = 0.30f), glowColor.copy(alpha = 0.08f), Color.Transparent),
+                    colors = listOf(glowColor.copy(alpha = 0.20f), glowColor.copy(alpha = 0.05f), Color.Transparent),
                     center = Offset(size.width / 2, -size.height * 0.08f),
                     radius = size.width * 0.85f,
                 ),
