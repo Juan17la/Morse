@@ -21,6 +21,7 @@ import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.ToggleChipDefaults
 import com.morse.wearos.R
+import com.morse.wearos.core.morse.MorseCodec
 import com.morse.wearos.data.AppLanguage
 import com.morse.wearos.data.TransportMode
 import com.morse.wearos.di.containerViewModel
@@ -50,7 +51,6 @@ fun SettingsScreen(
     )
 
     MorseScaffold(title = stringResource(R.string.settings_title), glow = MorseColors.Indigo) {
-
         item {
             Platter(
                 title = stringResource(R.string.settings_name),
@@ -71,9 +71,38 @@ fun SettingsScreen(
             }
         }
 
+        // Feeling one is the fastest way to understand what the app does.
+        item {
+            Platter(
+                title = stringResource(R.string.settings_test_vibration),
+                subtitle = MorseCodec.encode("SOS"),
+                monospaceSubtitle = true,
+                icon = R.drawable.ph_vibrate,
+                iconTint = MorseColors.Accent,
+                onClick = viewModel::testVibration,
+            )
+        }
+        item { SectionHeader(stringResource(R.string.settings_language_header)) }
+        items(AppLanguage.TAGS.size) { index ->
+            val tag = AppLanguage.TAGS[index]
+            RadioChip(stringResource(languageLabel(tag)), language == tag) {
+                AppLanguage.set(context, tag)
+                (context as? Activity)?.recreate()
+            }
+        }
+        item {
+            Text(
+                text = stringResource(if (state.aiOnline) R.string.settings_ai_online else R.string.settings_ai_offline),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                style = MaterialTheme.typography.caption2,
+                color = MaterialTheme.colors.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+        }
+
         // Demo builds always simulate, so the connection choice would do nothing there.
         if (!IS_DEMO) {
-            item { SectionHeader(stringResource(R.string.settings_transport_header)) }
+            item { SectionHeader(stringResource(R.string.settings_developer_header)) }
             items(TransportMode.entries.size) { index ->
                 val mode = TransportMode.entries[index]
                 RadioChip(stringResource(mode.labelRes()), state.transportMode == mode) { viewModel.setTransportMode(mode) }
@@ -89,34 +118,6 @@ fun SettingsScreen(
                     )
                 }
             }
-        }
-
-        item { SectionHeader(stringResource(R.string.settings_language_header)) }
-        items(AppLanguage.TAGS.size) { index ->
-            val tag = AppLanguage.TAGS[index]
-            RadioChip(stringResource(languageLabel(tag)), language == tag) {
-                AppLanguage.set(context, tag)
-                (context as? Activity)?.recreate()
-            }
-        }
-
-        item { SectionHeader(stringResource(R.string.settings_diagnostics_header)) }
-        item {
-            Platter(
-                title = stringResource(R.string.settings_test_vibration),
-                icon = R.drawable.ph_vibrate,
-                iconTint = MorseColors.Accent,
-                onClick = viewModel::testVibration,
-            )
-        }
-        item {
-            Text(
-                text = stringResource(if (state.aiOnline) R.string.settings_ai_online else R.string.settings_ai_offline),
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                style = MaterialTheme.typography.caption2,
-                color = MaterialTheme.colors.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
         }
     }
 }

@@ -70,26 +70,28 @@ class GroupSession(
     }
 
     private suspend fun createGroup() {
+        // Set before the first suspension so the group screen, opened right after, already knows our role.
+        isHost = true
         val t = attachTransport()
         val self = identity.self()
         selfId = self.id
-        isHost = true
         runCatching { t.createGroup(self) }
             .onSuccess { code -> _group.update { GroupInfo(code, t.members.value) } }
             .onFailure { fail(it) }
     }
 
     suspend fun joinGroup(code: String) {
+        isHost = false
         val t = attachTransport()
         val self = identity.self()
         selfId = self.id
-        isHost = false
         _group.value = GroupInfo(code, emptyList())
         runCatching { t.joinGroup(code, self) }.onFailure { fail(it) }
     }
 
-    suspend fun send(word: String) {
-        val t = transport ?: return
+    /** Sends [word] to the group; false when there is no group or the transport failed. */
+    suspend fun send(word: String): Boolean {
+        val t = transport ?: return false
         val self = identity.self()
         val message = MorseMessage(
             id = UUID.randomUUID().toString(),
@@ -99,8 +101,10 @@ class GroupSession(
             morse = MorseCodec.encode(word),
             timestampMs = System.currentTimeMillis(),
         )
-        haptics.tick()
-        runCatching { t.send(message) }.onFailure { fail(it) }
+        return runCatching { t.send(message) }
+            .onSuccess { haptics.tick() }
+            .onFailure { fail(it) }
+            .isSuccess
     }
 
     suspend fun leave() {

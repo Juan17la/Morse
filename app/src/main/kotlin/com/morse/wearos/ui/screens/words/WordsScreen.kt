@@ -1,6 +1,5 @@
 package com.morse.wearos.ui.screens.words
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -8,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -19,6 +17,7 @@ import androidx.wear.compose.material.Icon
 import com.morse.wearos.ui.components.SectionHeader
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.dialog.Alert
+import androidx.wear.compose.material.dialog.Confirmation
 import androidx.wear.compose.material.dialog.Dialog
 import com.morse.wearos.R
 import com.morse.wearos.data.AddResult
@@ -35,18 +34,10 @@ import com.morse.wearos.ui.theme.MorseColors
 fun WordsScreen(viewModel: WordsViewModel = containerViewModel { WordsViewModel(it.wordsRepository) }) {
     val customWords by viewModel.customWords.collectAsStateWithLifecycle()
     var pendingDelete by remember { mutableStateOf<String?>(null) }
-    val context = LocalContext.current
+    var rejected by remember { mutableStateOf<AddResult?>(null) }
 
     val launchAddWord = rememberTextInputLauncher(label = stringResource(R.string.words_input_label)) { word ->
-        viewModel.add(word) { result ->
-            val text = if (result == AddResult.DUPLICATE) {
-                context.getString(R.string.words_duplicate)
-            } else {
-                // Blank input never gets here (the text launcher drops it), so INVALID means too long.
-                context.getString(R.string.words_too_long, WordsRepository.MAX_WORD_LENGTH)
-            }
-            Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
-        }
+        viewModel.add(word) { result -> rejected = result }
     }
 
     MorseScaffold(title = stringResource(R.string.words_title), glow = MorseColors.Purple) {
@@ -69,7 +60,24 @@ fun WordsScreen(viewModel: WordsViewModel = containerViewModel { WordsViewModel(
         }
         item { SectionHeader(stringResource(R.string.words_defaults_header)) }
         items(DefaultWords.resources.size) { index ->
-            WordChip(word = stringResource(DefaultWords.resources[index]), icon = null, onClick = {})
+            WordChip(word = stringResource(DefaultWords.resources[index]), icon = null, onClick = null)
+        }
+    }
+
+    Dialog(showDialog = rejected != null, onDismissRequest = { rejected = null }) {
+        Confirmation(
+            onTimeout = { rejected = null },
+            icon = { Icon(painterResource(R.drawable.ph_warning_circle), contentDescription = null, tint = MorseColors.Accent) },
+        ) {
+            Text(
+                text = if (rejected == AddResult.DUPLICATE) {
+                    stringResource(R.string.words_duplicate)
+                } else {
+                    // Blank input never gets here (the text launcher drops it), so INVALID means too long.
+                    stringResource(R.string.words_too_long, WordsRepository.MAX_WORD_LENGTH)
+                },
+                textAlign = TextAlign.Center,
+            )
         }
     }
 

@@ -58,7 +58,8 @@ private val IconSize = 30.dp
 @Composable
 fun Platter(
     title: String,
-    onClick: () -> Unit,
+    /** Null makes a read-only row: no press feedback and no button role. */
+    onClick: (() -> Unit)?,
     subtitle: String? = null,
     @DrawableRes icon: Int? = null,
     iconTint: Color = MorseColors.Accent,
@@ -87,7 +88,10 @@ fun Platter(
             .clip(PlatterShape)
             .background(if (accent) MorseGradients.Accent else MorseGradients.Platter)
             .border(0.6.dp, MorseGradients.Hairline, PlatterShape)
-            .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
+            .then(
+                if (onClick == null) Modifier
+                else Modifier.clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick),
+            )
             .heightIn(min = 56.dp)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,

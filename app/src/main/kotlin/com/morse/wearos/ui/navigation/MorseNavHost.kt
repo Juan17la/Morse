@@ -28,6 +28,7 @@ import com.morse.wearos.ui.screens.incoming.IncomingScreen
 import com.morse.wearos.ui.screens.join.JoinScreen
 import com.morse.wearos.ui.screens.send.SendScreen
 import com.morse.wearos.ui.screens.settings.SettingsScreen
+import com.morse.wearos.ui.screens.welcome.WelcomeScreen
 import com.morse.wearos.ui.screens.words.WordsScreen
 
 @Composable
@@ -67,8 +68,10 @@ fun MorseNavHost() {
                 onSend = { navController.navigate(Routes.SEND) },
                 onWords = { navController.navigate(Routes.WORDS) },
                 onSettings = { navController.navigate(Routes.SETTINGS) },
+                onWelcome = { navController.navigate(Routes.WELCOME) { launchSingleTop = true } },
             )
         }
+        composable(Routes.WELCOME) { WelcomeScreen(onStart = { navController.popBackStack() }) }
         composable(Routes.JOIN) {
             JoinScreen(
                 onJoined = {
@@ -89,6 +92,7 @@ fun MorseNavHost() {
             SendScreen(
                 onSent = { navController.popBackStack() },
                 onDictated = { navController.navigate(Routes.condense(it)) },
+                onFindGroup = { navController.popBackStack(Routes.HOME, inclusive = false) },
             )
         }
         composable(Routes.CONDENSE) { entry ->

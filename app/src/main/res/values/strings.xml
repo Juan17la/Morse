@@ -2,9 +2,6 @@
 <resources>
     <string name="app_name" translatable="false">Morse</string>
 
-    <string name="home_current_group">Current group</string>
-    <string name="home_current_group_code">Code %1$s</string>
-    <string name="home_start">Get started</string>
     <string name="home_create_group">Create group</string>
     <string name="home_join_group">Join group</string>
     <string name="home_my_words">My words</string>
@@ -16,11 +13,11 @@
     <string name="action_ok">OK</string>
 
     <string name="permission_wifi_title">Permission needed</string>
-    <string name="permission_wifi_rationale">Wi-Fi Direct needs the nearby devices permission to find other watches.</string>
+    <string name="permission_wifi_rationale">Allow Nearby devices so this watch can find the others. You can turn it on in Settings.</string>
 
     <string name="group_access_code">Access code</string>
-    <string name="group_share_hint">Share this code with your group</string>
-    <string name="group_members">Members %1$d / %2$d</string>
+    <string name="group_share_hint">Share this code</string>
+    <string name="group_members">%1$d of %2$d joined</string>
     <string name="group_member_host">Host</string>
     <string name="group_member_you">You</string>
     <string name="group_send">Send message</string>
@@ -35,13 +32,13 @@
     <string name="join_digit_description">Digit %1$d</string>
 
     <string name="send_title">Send</string>
-    <string name="send_not_connected">Join a group first</string>
+    <string name="send_not_connected">Not in a group</string>
     <string name="send_custom_header">My words</string>
 
     <string name="incoming_from">From %1$s</string>
     <string name="incoming_short">Short buzz</string>
     <string name="incoming_long">Long buzz</string>
-    <string name="incoming_pass_on">Pass it on</string>
+    <string name="incoming_pass_on">Pass on “%1$s”</string>
     <string name="incoming_replay">Replay</string>
     <string name="incoming_empty">No messages yet</string>
 
@@ -64,7 +61,7 @@
     <string name="words_add">Add word</string>
     <string name="words_input_label">New word</string>
     <string name="words_empty">No custom words yet</string>
-    <string name="words_defaults_header">Defaults</string>
+    <string name="words_defaults_header">Always available</string>
     <string name="words_too_long">Max %1$d characters</string>
     <string name="words_duplicate">Already in your words</string>
     <string name="words_delete_title">Delete \"%1$s\"?</string>
@@ -73,13 +70,11 @@
     <string name="settings_name">My name</string>
     <string name="settings_name_input_label">Your name</string>
     <string name="settings_name_reset">Use device name</string>
-    <string name="settings_transport_header">Connection</string>
-    <string name="transport_lan">LAN / emulator</string>
+    <string name="transport_lan">Local network (emulator)</string>
     <string name="transport_wifi_direct" translatable="false">Wi-Fi Direct</string>
     <string name="settings_lan_host">Host address</string>
     <string name="settings_lan_host_input_label">Host IP address</string>
-    <string name="settings_diagnostics_header">Diagnostics</string>
-    <string name="settings_test_vibration">Test vibration (SOS)</string>
+    <string name="settings_test_vibration">Feel a sample (SOS)</string>
 
     <string name="send_dictate">Dictate</string>
     <string name="send_dictate_hint">AI shortens it for Morse</string>
@@ -88,17 +83,36 @@
 
     <string name="condense_title">Shortened</string>
     <string name="condense_shortened">Send this</string>
-    <string name="condense_seconds">Vibration: %1$d s → %2$d s</string>
+    <string name="condense_seconds">%1$d s</string>
     <string name="condense_as_dictated">As dictated</string>
 
     <string name="incoming_quick_replies">Reply</string>
 
     <string name="ai_badge">AI</string>
     <string name="ai_badge_offline">Offline</string>
-    <string name="settings_ai_online">AI: Gemini (offline fallback when no internet)</string>
-    <string name="settings_ai_offline">AI: offline mode (no Gemini key in this build)</string>
+    <string name="settings_ai_online">Smart replies: AI on</string>
+    <string name="settings_ai_offline">Smart replies: basic (offline)</string>
     <string name="settings_language_header">Language</string>
     <string name="language_system">System default</string>
     <string name="language_en" translatable="false">English</string>
     <string name="language_es" translatable="false">Español</string>
+    <string name="home_group_chip">Group %1$s · %2$d/%3$d</string>
+    <string name="permission_open_settings">Open settings</string>
+    <string name="group_leave_title">Leave the group?</string>
+    <string name="group_leave_body">You will stop feeling its messages.</string>
+    <string name="group_leave_host_body">You are the host: the group ends for everyone.</string>
+    <string name="group_start_over">Start over</string>
+    <string name="group_swipe_hint">Swipe up to send</string>
+    <string name="send_not_connected_hint">Tap to create or join one</string>
+    <string name="sent_title">Sent “%1$s”</string>
+    <string name="send_failed_title">“%1$s” wasn\'t sent</string>
+    <string name="send_failed_body">Check you are still in the group, then try again.</string>
+    <string name="incoming_empty_hint">When someone sends a word, you will feel it here.</string>
+    <string name="incoming_replies_loading">Finding replies…</string>
+    <string name="condense_saved">%1$d s less buzzing</string>
+    <string name="settings_developer_header">Demo and testing</string>
+    <string name="welcome_word">Hi</string>
+    <string name="welcome_felt">You just felt “%1$s” in Morse.</string>
+    <string name="welcome_name">Others see you as</string>
+    <string name="welcome_start">Start</string>
 </resources>

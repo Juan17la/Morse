@@ -30,6 +30,9 @@ class GroupViewModel(private val session: GroupSession) : ViewModel() {
         GroupUiState(state, group, last, session.selfId, session.isHost)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), GroupUiState())
 
+    /** Read directly, not from [uiState], so the first frame already knows which page to open on. */
+    val isHost: Boolean get() = session.isHost
+
     fun retryCreate() = session.createGroupAsync()
 
     fun leave() {

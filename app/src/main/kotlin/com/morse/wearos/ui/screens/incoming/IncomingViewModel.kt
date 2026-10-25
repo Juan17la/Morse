@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.transformLatest
-import kotlinx.coroutines.launch
 
 /** Smart replies for the shown message; [Loading] while the model is asked, [None] for our own messages. */
 sealed interface Replies {
@@ -48,10 +47,5 @@ class IncomingViewModel(
 
     fun replay() = session.replayLast()
 
-    fun reply(word: String, onSent: () -> Unit) {
-        viewModelScope.launch {
-            session.send(word)
-            onSent()
-        }
-    }
+    suspend fun reply(word: String): Boolean = session.send(word)
 }

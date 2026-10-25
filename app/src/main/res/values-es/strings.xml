@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="home_current_group">Grupo actual</string>
-    <string name="home_current_group_code">Código %1$s</string>
-    <string name="home_start">Empezar</string>
     <string name="home_create_group">Crear grupo</string>
     <string name="home_join_group">Unirse a grupo</string>
     <string name="home_my_words">Mis palabras</string>
@@ -14,11 +11,11 @@
     <string name="action_ok">Aceptar</string>
 
     <string name="permission_wifi_title">Permiso necesario</string>
-    <string name="permission_wifi_rationale">Wi-Fi Direct necesita el permiso de dispositivos cercanos para encontrar otros relojes.</string>
+    <string name="permission_wifi_rationale">Permite Dispositivos cercanos para que este reloj encuentre a los demás. Puedes activarlo en Ajustes.</string>
 
     <string name="group_access_code">Código de acceso</string>
-    <string name="group_share_hint">Comparte este código con tu grupo</string>
-    <string name="group_members">Miembros %1$d / %2$d</string>
+    <string name="group_share_hint">Comparte este código</string>
+    <string name="group_members">%1$d de %2$d unidos</string>
     <string name="group_member_host">Anfitrión</string>
     <string name="group_member_you">Tú</string>
     <string name="group_send">Enviar mensaje</string>
@@ -33,13 +30,13 @@
     <string name="join_digit_description">Dígito %1$d</string>
 
     <string name="send_title">Enviar</string>
-    <string name="send_not_connected">Únete a un grupo primero</string>
+    <string name="send_not_connected">No estás en un grupo</string>
     <string name="send_custom_header">Mis palabras</string>
 
     <string name="incoming_from">De %1$s</string>
     <string name="incoming_short">Vibración corta</string>
     <string name="incoming_long">Vibración larga</string>
-    <string name="incoming_pass_on">Reenviar</string>
+    <string name="incoming_pass_on">Reenviar “%1$s”</string>
     <string name="incoming_replay">Repetir</string>
     <string name="incoming_empty">Aún no hay mensajes</string>
 
@@ -62,7 +59,7 @@
     <string name="words_add">Agregar palabra</string>
     <string name="words_input_label">Nueva palabra</string>
     <string name="words_empty">Aún no hay palabras personalizadas</string>
-    <string name="words_defaults_header">Predeterminadas</string>
+    <string name="words_defaults_header">Siempre disponibles</string>
     <string name="words_too_long">Máximo %1$d caracteres</string>
     <string name="words_duplicate">Ya está en tus palabras</string>
     <string name="words_delete_title">¿Eliminar \"%1$s\"?</string>
@@ -71,12 +68,10 @@
     <string name="settings_name">Mi nombre</string>
     <string name="settings_name_input_label">Tu nombre</string>
     <string name="settings_name_reset">Usar nombre del dispositivo</string>
-    <string name="settings_transport_header">Conexión</string>
-    <string name="transport_lan">LAN / emulador</string>
+    <string name="transport_lan">Red local (emulador)</string>
     <string name="settings_lan_host">Dirección del host</string>
     <string name="settings_lan_host_input_label">IP del host</string>
-    <string name="settings_diagnostics_header">Diagnóstico</string>
-    <string name="settings_test_vibration">Probar vibración (SOS)</string>
+    <string name="settings_test_vibration">Sentir un ejemplo (SOS)</string>
 
     <string name="send_dictate">Dictar</string>
     <string name="send_dictate_hint">La IA lo acorta para Morse</string>
@@ -85,15 +80,34 @@
 
     <string name="condense_title">Acortado</string>
     <string name="condense_shortened">Enviar esto</string>
-    <string name="condense_seconds">Vibración: %1$d s → %2$d s</string>
+    <string name="condense_seconds">%1$d s</string>
     <string name="condense_as_dictated">Tal como lo dictaste</string>
 
     <string name="incoming_quick_replies">Responder</string>
 
     <string name="ai_badge">IA</string>
     <string name="ai_badge_offline">Sin conexión</string>
-    <string name="settings_ai_online">IA: Gemini (respaldo sin conexión si no hay internet)</string>
-    <string name="settings_ai_offline">IA: modo sin conexión (esta versión no tiene clave de Gemini)</string>
+    <string name="settings_ai_online">Respuestas rápidas: IA activa</string>
+    <string name="settings_ai_offline">Respuestas rápidas: básicas (sin conexión)</string>
     <string name="settings_language_header">Idioma</string>
     <string name="language_system">Predeterminado del sistema</string>
+    <string name="home_group_chip">Grupo %1$s · %2$d/%3$d</string>
+    <string name="permission_open_settings">Abrir ajustes</string>
+    <string name="group_leave_title">¿Salir del grupo?</string>
+    <string name="group_leave_body">Dejarás de sentir sus mensajes.</string>
+    <string name="group_leave_host_body">Eres el anfitrión: el grupo termina para todos.</string>
+    <string name="group_start_over">Empezar de nuevo</string>
+    <string name="group_swipe_hint">Desliza arriba para enviar</string>
+    <string name="send_not_connected_hint">Toca para crear o unirte a uno</string>
+    <string name="sent_title">Enviado “%1$s”</string>
+    <string name="send_failed_title">“%1$s” no se envió</string>
+    <string name="send_failed_body">Comprueba que sigues en el grupo y vuelve a intentarlo.</string>
+    <string name="incoming_empty_hint">Cuando alguien envíe una palabra, la sentirás aquí.</string>
+    <string name="incoming_replies_loading">Buscando respuestas…</string>
+    <string name="condense_saved">%1$d s menos de vibración</string>
+    <string name="settings_developer_header">Demo y pruebas</string>
+    <string name="welcome_word">Hola</string>
+    <string name="welcome_felt">Acabas de sentir “%1$s” en Morse.</string>
+    <string name="welcome_name">Los demás te ven como</string>
+    <string name="welcome_start">Empezar</string>
 </resources>
