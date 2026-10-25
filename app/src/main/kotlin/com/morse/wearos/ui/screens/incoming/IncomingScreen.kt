@@ -55,11 +55,13 @@ import com.morse.wearos.ui.components.Avatar
 import com.morse.wearos.ui.components.MorseScaffold
 import com.morse.wearos.ui.components.Platter
 import com.morse.wearos.ui.components.isCompactScreen
+import com.morse.wearos.ui.components.rememberSendWithFeedback
 import com.morse.wearos.ui.screens.send.WordChip
 import com.morse.wearos.ui.theme.MorseColors
 import com.morse.wearos.ui.theme.MorseGradients
 import com.morse.wearos.ui.theme.avatarColor
 import com.morse.wearos.ui.theme.morseSpring
+import com.morse.wearos.ui.theme.rememberReduceMotion
 import kotlinx.coroutines.delay
 
 @Composable
@@ -72,19 +74,30 @@ fun IncomingScreen(
     val connection by viewModel.connection.collectAsStateWithLifecycle()
     var playToken by remember { mutableIntStateOf(0) }
     val compact = isCompactScreen()
+    val reduceMotion = rememberReduceMotion()
     val current = message
     val playback = rememberPlayback(current?.id, current?.morse.orEmpty(), playToken)
+    val reply = rememberSendWithFeedback(viewModel::reply, onReplied)
 
     MorseScaffold(glow = current?.senderName?.let(::avatarColor) ?: MorseColors.Blue) {
         if (current == null) {
             item {
-                Text(stringResource(R.string.incoming_empty), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                Text(stringResource(R.string.incoming_empty), modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.title3, textAlign = TextAlign.Center)
+            }
+            item {
+                Text(
+                    stringResource(R.string.incoming_empty_hint),
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.caption1,
+                    color = MaterialTheme.colors.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
             }
             return@MorseScaffold
         }
         item {
             // Keyed by message so each new arrival pops in on a spring.
-            val pop = remember(current.id) { Animatable(0.6f) }
+            val pop = remember(current.id) { Animatable(if (reduceMotion) 1f else 0.6f) }
             LaunchedEffect(current.id) { pop.animateTo(1f, morseSpring()) }
             Column(
                 modifier = Modifier.fillMaxWidth().graphicsLayer {
@@ -119,37 +132,20 @@ fun IncomingScreen(
         item {
             MorseVisualizer(current.morse, playback, dot = if (compact) 6.dp else 8.dp)
         }
-        item {
-            Box(
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .size(if (compact) 40.dp else 46.dp)
-                    .clip(CircleShape)
-                    .background(MorseGradients.Accent)
-                    .clickable(role = Role.Button) { viewModel.replay(); playToken++ },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painterResource(R.drawable.ph_arrow_counter_clockwise),
-                    contentDescription = stringResource(R.string.incoming_replay),
-                    tint = Color.Black,
-                    modifier = Modifier.size(22.dp),
-                )
-            }
-        }
+        item { ReplayButton { viewModel.replay(); playToken++ } }
         if (connection == ConnectionState.Connected) {
             if (current.senderId != viewModel.selfId) {
                 item {
                     Platter(
-                        title = stringResource(R.string.incoming_pass_on),
-                        subtitle = current.word,
+                        title = stringResource(R.string.incoming_pass_on, current.word),
+                        morse = current.morse,
                         icon = R.drawable.ph_paper_plane_tilt,
                         iconTint = MorseColors.Green,
-                        onClick = { viewModel.reply(current.word, onReplied) },
+                        onClick = { reply(current.word) },
                     )
                 }
             }
-            smartReplies(replies) { viewModel.reply(it, onReplied) }
+            smartReplies(replies, reply)
         }
     }
 }
@@ -157,7 +153,12 @@ fun IncomingScreen(
 private fun ScalingLazyListScope.smartReplies(replies: Replies, onReply: (String) -> Unit) {
     when (replies) {
         Replies.None -> Unit
-        Replies.Loading -> item { CircularProgressIndicator(modifier = Modifier.padding(8.dp)) }
+        Replies.Loading -> item {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(8.dp)) {
+                CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                Text(stringResource(R.string.incoming_replies_loading), style = MaterialTheme.typography.caption1, color = MaterialTheme.colors.onSurfaceVariant)
+            }
+        }
         is Replies.Ready -> {
             item { AiHeader(stringResource(R.string.incoming_quick_replies), replies.fromAi) }
             items(replies.options.size) { index ->
@@ -168,16 +169,38 @@ private fun ScalingLazyListScope.smartReplies(replies: Replies, onReply: (String
     }
 }
 
+/** The round "feel it again" button under a played word. */
+@Composable
+internal fun ReplayButton(onClick: () -> Unit) {
+    val size = if (isCompactScreen()) 48.dp else 52.dp
+    Box(
+        modifier = Modifier
+            .padding(top = 6.dp)
+            .size(size)
+            .clip(CircleShape)
+            .background(MorseGradients.Accent)
+            .clickable(role = Role.Button, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            painterResource(R.drawable.ph_arrow_counter_clockwise),
+            contentDescription = stringResource(R.string.incoming_replay),
+            tint = Color.Black,
+            modifier = Modifier.size(22.dp),
+        )
+    }
+}
+
 /** Where the vibration is right now: [active] is the symbol index in the Morse string, -1 in a gap. */
-private class Playback(val active: Int, val finished: Boolean, val dash: Boolean)
+internal class Playback(val active: Int, val finished: Boolean, val dash: Boolean)
 
 @Composable
-private fun rememberPlayback(messageId: String?, morse: String, playToken: Int): Playback {
+internal fun rememberPlayback(messageId: String?, morse: String, playToken: Int, unitMs: Long = MorseTiming.DEFAULT_UNIT_MS): Playback {
     var active by remember(messageId) { mutableIntStateOf(-1) }
     var finished by remember(messageId) { mutableStateOf(false) }
     LaunchedEffect(messageId, playToken) {
         finished = false
-        for (step in MorseTiming.steps(morse)) {
+        for (step in MorseTiming.steps(morse, unitMs)) {
             active = if (step.on) step.symbolIndex else -1
             delay(step.durationMs)
         }
@@ -189,7 +212,7 @@ private fun rememberPlayback(messageId: String?, morse: String, playToken: Int):
 
 /** One big symbol that lights exactly while the wrist buzzes, named in plain words. */
 @Composable
-private fun Beacon(playback: Playback) {
+internal fun Beacon(playback: Playback) {
     val on = playback.active >= 0
     val glow by animateFloatAsState(if (on) 1f else 0f, morseSpring(), label = "beacon")
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 8.dp, bottom = 6.dp)) {
@@ -214,7 +237,7 @@ private fun Beacon(playback: Playback) {
 
 /** The word fills in as it is felt: played letters white, the current one in the accent, the rest dim. */
 @Composable
-private fun revealed(word: String, morse: String, playback: Playback) = buildAnnotatedString {
+internal fun revealed(word: String, morse: String, playback: Playback) = buildAnnotatedString {
     // Letter groups in the Morse string line up one-to-one with the word's encodable characters.
     val starts = remember(morse) { Regex("[.-]+").findAll(morse).map { it.range.first }.toList() }
     val current = if (playback.active >= 0) starts.indexOfLast { it <= playback.active } else -1
@@ -238,7 +261,7 @@ private fun revealed(word: String, morse: String, playback: Playback) = buildAnn
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun MorseVisualizer(morse: String, playback: Playback, dot: Dp) {
+internal fun MorseVisualizer(morse: String, playback: Playback, dot: Dp) {
     // Letters keep each symbol's index in the string, which is what MorseStep.symbolIndex points at.
     val letters = remember(morse) {
         Regex("[.-]+|/").findAll(morse).map { it.range.first to it.value }.toList()

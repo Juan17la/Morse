@@ -43,7 +43,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.wear.compose.material.Button
+import androidx.wear.compose.material.ButtonDefaults
+import androidx.wear.compose.material.dialog.Alert
+import androidx.wear.compose.material.dialog.Dialog
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -72,6 +80,7 @@ import com.morse.wearos.ui.theme.MorseColors
 import com.morse.wearos.ui.theme.MorseGradients
 import com.morse.wearos.ui.theme.avatarColor
 import com.morse.wearos.ui.theme.morseSpring
+import com.morse.wearos.ui.theme.rememberReduceMotion
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -82,7 +91,15 @@ fun GroupScreen(
     viewModel: GroupViewModel = containerViewModel { GroupViewModel(it.groupSession) },
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val pager = rememberPagerState { 3 }
+    // The host needs the code to share; someone who just typed it needs Send.
+    val pager = rememberPagerState(initialPage = if (viewModel.isHost) 0 else 1) { 3 }
+    var confirmLeave by remember { mutableStateOf(false) }
+
+    val memberCount = state.group?.members?.size ?: 0
+    LaunchedEffect(memberCount) {
+        // Once everyone is in, the code has done its job: bring the host to Send.
+        if (viewModel.isHost && memberCount >= GroupConfig.MAX_MEMBERS && pager.currentPage == 0) pager.animateScrollToPage(1)
+    }
 
     val glow = when (state.state) {
         ConnectionState.Connected -> MorseColors.Green
@@ -100,50 +117,79 @@ fun GroupScreen(
                 verticalArrangement = Arrangement.Center,
             ) {
                 when (page) {
-                    0 -> CodePage(state, viewModel, onLeft)
+                    0 -> CodePage(state, viewModel, onLeft, onSend)
                     1 -> MessagesPage(state, onSend, onOpenLastMessage)
-                    else -> PeoplePage(state)
+                    else -> PeoplePage(state) { confirmLeave = true }
                 }
             }
         }
-        PageDots(count = 3, current = pager.currentPage, modifier = Modifier.align(Alignment.CenterEnd).padding(end = 4.dp))
+        PageDots(count = 3, current = pager.currentPage, modifier = Modifier.align(Alignment.CenterEnd).padding(end = 6.dp))
       }
+    }
+
+    Dialog(showDialog = confirmLeave, onDismissRequest = { confirmLeave = false }) {
+        Alert(
+            icon = { Icon(painterResource(R.drawable.ph_sign_out), contentDescription = null, tint = MorseColors.Red) },
+            title = { Text(stringResource(R.string.group_leave_title), textAlign = TextAlign.Center) },
+            content = {
+                Text(
+                    stringResource(if (state.isHost) R.string.group_leave_host_body else R.string.group_leave_body),
+                    textAlign = TextAlign.Center,
+                )
+            },
+            negativeButton = {
+                Button(onClick = { confirmLeave = false }, colors = ButtonDefaults.secondaryButtonColors()) {
+                    Icon(painterResource(R.drawable.ph_x), contentDescription = stringResource(R.string.action_cancel))
+                }
+            },
+            positiveButton = {
+                Button(onClick = { confirmLeave = false; viewModel.leave(); onLeft() }, colors = ButtonDefaults.buttonColors(backgroundColor = MorseColors.Red)) {
+                    Icon(painterResource(R.drawable.ph_sign_out), contentDescription = stringResource(R.string.group_leave))
+                }
+            },
+        )
     }
 }
 
 @Composable
-private fun CodePage(state: GroupUiState, viewModel: GroupViewModel, onLeft: () -> Unit) {
+private fun CodePage(state: GroupUiState, viewModel: GroupViewModel, onLeft: () -> Unit, onSend: () -> Unit) {
     AccessCodeHeader(code = state.group?.code, connection = state.state)
     when (val connection = state.state) {
         is ConnectionState.Error -> {
             ErrorText(connection)
-            if (state.isHost) PillButton(stringResource(R.string.action_retry), R.drawable.ph_arrow_counter_clockwise, MorseColors.Accent, viewModel::retryCreate)
+            Spacer(Modifier.height(8.dp))
+            if (state.isHost) {
+                PillButton(stringResource(R.string.action_retry), R.drawable.ph_arrow_counter_clockwise, MorseColors.Accent, viewModel::retryCreate)
+            } else {
+                PillButton(stringResource(R.string.group_start_over), R.drawable.ph_arrow_counter_clockwise, MorseColors.Accent) { viewModel.leave(); onLeft() }
+            }
         }
         ConnectionState.Creating, ConnectionState.Joining -> CircularProgressIndicator(modifier = Modifier.padding(8.dp))
         else -> Text(
-            stringResource(R.string.group_share_hint),
+            // The count is what the host is waiting on while this page is up.
+            stringResource(R.string.group_share_hint) + " · " +
+                stringResource(R.string.group_members, state.group?.members.orEmpty().size, GroupConfig.MAX_MEMBERS),
             style = MaterialTheme.typography.caption2,
             color = MaterialTheme.colors.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 12.dp),
         )
     }
-    Spacer(Modifier.height(16.dp))
-    PillButton(stringResource(R.string.group_leave), R.drawable.ph_sign_out, MorseColors.Red) { viewModel.leave(); onLeft() }
+    if (state.state == ConnectionState.Connected) {
+        Spacer(Modifier.height(10.dp))
+        PillButton(stringResource(R.string.group_send), R.drawable.ph_paper_plane_tilt, MorseColors.Accent, onSend)
+    }
 }
 
 @Composable
-private fun PeoplePage(state: GroupUiState) {
+private fun PeoplePage(state: GroupUiState, onLeave: () -> Unit) {
     val members = state.group?.members.orEmpty()
-    Text(
-        stringResource(R.string.group_members, members.size, GroupConfig.MAX_MEMBERS),
-        style = MaterialTheme.typography.caption1,
-        color = MaterialTheme.colors.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = 10.dp),
-    )
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    // No header: three rows plus Leave already fill a round face; the rows say who is here.
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         members.forEach { MemberRow(it, isSelf = it.id == state.selfId) }
     }
+    Spacer(Modifier.height(10.dp))
+    PillButton(stringResource(R.string.group_leave), R.drawable.ph_sign_out, MorseColors.Red, onLeave)
 }
 
 @Composable
@@ -159,8 +205,7 @@ private fun MessagesPage(state: GroupUiState, onSend: () -> Unit, onOpenLastMess
         state.lastMessage?.let { last ->
             Platter(
                 title = "${shortName(last.senderName)}: ${last.word}",
-                subtitle = last.morse,
-                monospaceSubtitle = true,
+                morse = last.morse,
                 icon = R.drawable.ph_vibrate,
                 iconTint = MorseColors.Blue,
                 onClick = onOpenLastMessage,
@@ -184,9 +229,9 @@ private fun PillButton(text: String, @DrawableRes icon: Int, tint: Color, onClic
 
 @Composable
 private fun PageDots(count: Int, current: Int, modifier: Modifier) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         repeat(count) { i ->
-            Box(Modifier.size(if (i == current) 6.dp else 4.dp).clip(CircleShape).background(if (i == current) Color.White else MorseColors.Grey))
+            Box(Modifier.size(if (i == current) 8.dp else 5.dp).clip(CircleShape).background(if (i == current) Color.White else MorseColors.Grey))
         }
     }
 }
@@ -256,7 +301,7 @@ private fun StatusDot(connection: ConnectionState) {
         },
         label = "status",
     )
-    val breathing = connection == ConnectionState.Creating || connection == ConnectionState.Joining
+    val breathing = !rememberReduceMotion() && (connection == ConnectionState.Creating || connection == ConnectionState.Joining)
     val pulse by rememberInfiniteTransition(label = "pulse").animateFloat(
         initialValue = 1f,
         targetValue = 0.25f,
@@ -280,11 +325,11 @@ private fun MemberRow(member: Member, isSelf: Boolean) {
     )
     Row(
         Modifier.fillMaxWidth().clip(CircleShape).background(MorseGradients.Platter).border(0.6.dp, MorseGradients.Hairline, CircleShape)
-            .padding(horizontal = 6.dp, vertical = 4.dp),
+            .padding(horizontal = 6.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Avatar(member.name, size = 28.dp)
+        Avatar(member.name, size = 24.dp)
         Column {
             Text(shortName(member.name, max = 12), style = MaterialTheme.typography.button, color = Color.White, maxLines = 1)
             if (tags.isNotEmpty()) Text(tags.joinToString(" · "), style = MaterialTheme.typography.caption2, color = MaterialTheme.colors.onSurfaceVariant, maxLines = 1)

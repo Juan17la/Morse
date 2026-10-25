@@ -52,10 +52,5 @@ class CondenseViewModel(
         }
     }
 
-    fun send(word: String, onSent: () -> Unit) {
-        viewModelScope.launch {
-            session.send(word)
-            onSent()
-        }
-    }
+    suspend fun send(word: String): Boolean = session.send(word)
 }

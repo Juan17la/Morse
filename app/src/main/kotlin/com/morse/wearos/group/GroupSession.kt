@@ -2,6 +2,7 @@ package com.morse.wearos.group
 
 import android.util.Log
 import com.morse.wearos.core.haptics.HapticPlayer
+import com.morse.wearos.core.haptics.HapticSignal
 import com.morse.wearos.core.morse.MorseCodec
 import com.morse.wearos.data.IdentityRepository
 import com.morse.wearos.data.SettingsRepository
@@ -70,26 +71,28 @@ class GroupSession(
     }
 
     private suspend fun createGroup() {
+        // Set before the first suspension so the group screen, opened right after, already knows our role.
+        isHost = true
         val t = attachTransport()
         val self = identity.self()
         selfId = self.id
-        isHost = true
         runCatching { t.createGroup(self) }
             .onSuccess { code -> _group.update { GroupInfo(code, t.members.value) } }
             .onFailure { fail(it) }
     }
 
     suspend fun joinGroup(code: String) {
+        isHost = false
         val t = attachTransport()
         val self = identity.self()
         selfId = self.id
-        isHost = false
         _group.value = GroupInfo(code, emptyList())
         runCatching { t.joinGroup(code, self) }.onFailure { fail(it) }
     }
 
-    suspend fun send(word: String) {
-        val t = transport ?: return
+    /** Sends [word] to the group; false when there is no group or the transport failed. */
+    suspend fun send(word: String): Boolean {
+        val t = transport ?: return false
         val self = identity.self()
         val message = MorseMessage(
             id = UUID.randomUUID().toString(),
@@ -99,8 +102,10 @@ class GroupSession(
             morse = MorseCodec.encode(word),
             timestampMs = System.currentTimeMillis(),
         )
-        haptics.tick()
-        runCatching { t.send(message) }.onFailure { fail(it) }
+        return runCatching { t.send(message) }
+            .onSuccess { haptics.signal(HapticSignal.Sent) }
+            .onFailure { haptics.signal(HapticSignal.Failed); fail(it) }
+            .isSuccess
     }
 
     suspend fun leave() {
@@ -125,11 +130,23 @@ class GroupSession(
         val t = createTransport(mode)
         transport = t
         collectors = listOf(
-            scope.launch { t.state.collect { _state.value = it } },
-            scope.launch { t.members.collect { m -> _group.update { it?.copy(members = m) } } },
+            scope.launch { t.state.collect { signalStateChange(_state.value, it); _state.value = it } },
+            scope.launch {
+                t.members.collect { m ->
+                    if (m.size < (_group.value?.members?.size ?: 0)) haptics.signal(HapticSignal.MemberLeft)
+                    _group.update { it?.copy(members = m) }
+                }
+            },
             scope.launch { t.incoming.collect { onMessage(it) } },
         )
         return t
+    }
+
+    private fun signalStateChange(from: ConnectionState, to: ConnectionState) {
+        when {
+            to == ConnectionState.Connected && from != ConnectionState.Connected -> haptics.signal(HapticSignal.Joined)
+            to is ConnectionState.Error && from == ConnectionState.Connected -> haptics.signal(HapticSignal.Lost)
+        }
     }
 
     private fun onMessage(message: MorseMessage) {

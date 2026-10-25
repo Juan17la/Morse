@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -23,6 +24,13 @@ class SettingsRepository(private val context: Context) {
         prefs[KEY_LAN_HOST] ?: DEFAULT_LAN_HOST
     }
 
+    /** False until the first-run welcome has been shown once. */
+    val welcomeSeen: Flow<Boolean> = context.settingsDataStore.data.map { it[KEY_WELCOME_SEEN] == true }
+
+    suspend fun setWelcomeSeen() {
+        context.settingsDataStore.edit { it[KEY_WELCOME_SEEN] = true }
+    }
+
     suspend fun setTransportMode(mode: TransportMode) {
         context.settingsDataStore.edit { it[KEY_TRANSPORT] = mode.name }
     }
@@ -37,5 +45,6 @@ class SettingsRepository(private val context: Context) {
         const val DEFAULT_LAN_HOST = "10.0.2.2"
         private val KEY_TRANSPORT = stringPreferencesKey("transport_mode")
         private val KEY_LAN_HOST = stringPreferencesKey("lan_host")
+        private val KEY_WELCOME_SEEN = booleanPreferencesKey("welcome_seen")
     }
 }

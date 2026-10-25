@@ -1,13 +1,10 @@
 package com.morse.wearos.ui.screens.home
 
-import androidx.activity.compose.BackHandler
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -24,25 +21,31 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.wear.compose.material.ButtonDefaults
+import androidx.wear.compose.material.ChipDefaults
+import androidx.wear.compose.material.CompactChip
+import com.morse.wearos.domain.GroupConfig
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.TimeText
-import androidx.compose.ui.draw.alpha
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,12 +60,10 @@ import com.morse.wearos.R
 import com.morse.wearos.data.TransportMode
 import com.morse.wearos.di.containerViewModel
 import com.morse.wearos.transport.IS_DEMO
-import com.morse.wearos.ui.components.MorseScaffold
 import com.morse.wearos.ui.components.TopGlow
 import com.morse.wearos.ui.components.isCompactScreen
 import com.morse.wearos.ui.components.screenPct
 import com.morse.wearos.ui.theme.MorseGradients
-import com.morse.wearos.ui.theme.morseSpring
 import com.morse.wearos.ui.permissions.rememberWifiDirectPermissionRequest
 import com.morse.wearos.ui.theme.MorseColors
 
@@ -73,13 +74,17 @@ fun HomeScreen(
     onSend: () -> Unit,
     onWords: () -> Unit,
     onSettings: () -> Unit,
+    onWelcome: () -> Unit,
     viewModel: HomeViewModel = containerViewModel { HomeViewModel(it.groupSession, it.settingsRepository) },
 ) {
     val transportMode by viewModel.transportMode.collectAsStateWithLifecycle()
-    val activeGroupCode by viewModel.activeGroupCode.collectAsStateWithLifecycle()
-    var choosing by remember { mutableStateOf(false) }
+    val welcomeSeen by viewModel.welcomeSeen.collectAsStateWithLifecycle()
+    val group by viewModel.activeGroup.collectAsStateWithLifecycle()
     var permissionDenied by remember { mutableStateOf(false) }
     var pendingAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+    val context = LocalContext.current
+
+    LaunchedEffect(welcomeSeen) { if (welcomeSeen == false) onWelcome() }
 
     val requestPermission = rememberWifiDirectPermissionRequest(
         onGranted = { pendingAction?.invoke(); pendingAction = null },
@@ -95,40 +100,52 @@ fun HomeScreen(
         }
     }
 
-    val inGroup = activeGroupCode != null
-    BackHandler(enabled = choosing) { choosing = false }
-
+    val current = group
     Scaffold(timeText = { TimeText() }) {
-        TopGlow(if (inGroup) MorseColors.Green else MorseColors.Accent)
+        // Nothing until we know whether this is the first launch, so the welcome never flashes Home first.
+        if (welcomeSeen != true) return@Scaffold
+        TopGlow(if (current != null) MorseColors.Green else MorseColors.Accent)
         Column(
-            modifier = Modifier.fillMaxSize().padding(top = screenPct(0.13f), bottom = screenPct(0.06f)),
+            modifier = Modifier.fillMaxSize().padding(top = screenPct(0.14f), bottom = screenPct(0.05f)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            // The centre changes with the situation: send, start, or pick create / join.
+            // The centre is the one thing to do now: send when in a group, otherwise create or join one.
             AnimatedContent(
-                targetState = if (inGroup) HubState.Send else if (choosing) HubState.Choose else HubState.Start,
+                targetState = current != null,
                 modifier = Modifier.weight(1f),
                 transitionSpec = { (fadeIn(tween(220)) + scaleIn(initialScale = 0.85f)) togetherWith (fadeOut(tween(120)) + scaleOut(targetScale = 0.85f)) },
                 contentAlignment = Alignment.Center,
                 label = "hub",
-            ) { hub ->
-                when (hub) {
-                    HubState.Send -> Orb(R.drawable.ph_paper_plane_tilt, stringResource(R.string.group_send), onClick = onSend)
-                    HubState.Start -> Orb(R.drawable.ph_users_three, stringResource(R.string.home_start), onClick = { choosing = true })
-                    HubState.Choose -> Row(horizontalArrangement = Arrangement.spacedBy(18.dp), verticalAlignment = Alignment.CenterVertically) {
+            ) { inGroup ->
+                if (inGroup && current != null) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Orb(R.drawable.ph_paper_plane_tilt, stringResource(R.string.group_send), onClick = onSend)
+                        CompactChip(
+                            onClick = onOpenGroup,
+                            label = {
+                                Text(
+                                    stringResource(R.string.home_group_chip, current.code, current.members.size, GroupConfig.MAX_MEMBERS),
+                                    maxLines = 1,
+                                )
+                            },
+                            icon = { Icon(painterResource(R.drawable.ph_users_three), contentDescription = null, tint = MorseColors.Green, modifier = Modifier.size(16.dp)) },
+                            colors = ChipDefaults.secondaryChipColors(),
+                        )
+                    }
+                } else {
+                    Row(horizontalArrangement = Arrangement.spacedBy(18.dp), verticalAlignment = Alignment.CenterVertically) {
                         Choice(R.drawable.ph_plus, stringResource(R.string.home_create_group), MorseColors.Green) {
-                            guarded { choosing = false; viewModel.createGroup(); onOpenGroup() }
+                            guarded { viewModel.createGroup(); onOpenGroup() }
                         }
                         Choice(R.drawable.ph_sign_in, stringResource(R.string.home_join_group), MorseColors.Blue) {
-                            guarded { choosing = false; onJoinGroup() }
+                            guarded { onJoinGroup() }
                         }
                     }
                 }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Top) {
                 SmallAction(R.drawable.ph_chat_text, stringResource(R.string.home_my_words), MorseColors.Purple, onWords)
-                if (inGroup) SmallAction(R.drawable.ph_users_three, stringResource(R.string.home_current_group), MorseColors.Green, onOpenGroup)
                 SmallAction(R.drawable.ph_gear_six, stringResource(R.string.home_settings), MorseColors.Grey, onSettings)
             }
         }
@@ -136,72 +153,82 @@ fun HomeScreen(
 
     Dialog(showDialog = permissionDenied, onDismissRequest = { permissionDenied = false }) {
         Alert(
-            title = { Text(stringResource(R.string.permission_wifi_title)) },
-            content = { Text(stringResource(R.string.permission_wifi_rationale)) },
-            positiveButton = {
-                Button(onClick = { permissionDenied = false }) { Text(stringResource(R.string.action_ok)) }
+            title = { Text(stringResource(R.string.permission_wifi_title), textAlign = TextAlign.Center) },
+            content = { Text(stringResource(R.string.permission_wifi_rationale), textAlign = TextAlign.Center) },
+            negativeButton = {
+                Button(onClick = { permissionDenied = false }, colors = ButtonDefaults.secondaryButtonColors()) {
+                    Icon(painterResource(R.drawable.ph_x), contentDescription = stringResource(R.string.action_cancel))
+                }
             },
-            negativeButton = {},
+            positiveButton = {
+                Button(onClick = {
+                    permissionDenied = false
+                    context.startActivity(
+                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.fromParts("package", context.packageName, null)),
+                    )
+                }) {
+                    Icon(painterResource(R.drawable.ph_gear_six), contentDescription = stringResource(R.string.permission_open_settings))
+                }
+            },
         )
     }
 }
 
-private enum class HubState { Send, Start, Choose }
-
-/** The big centre button; two rings ripple out of it like a signal leaving the wrist. */
+/** The big centre button for the one main action. */
 @Composable
 private fun Orb(@DrawableRes icon: Int, label: String, onClick: () -> Unit) {
-    val size = if (isCompactScreen()) 76.dp else 88.dp
-    val t by rememberInfiniteTransition(label = "ripple").animateFloat(
-        0f, 1f, infiniteRepeatable(tween(2600, easing = LinearEasing), RepeatMode.Restart), label = "ripple",
-    )
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    val compact = isCompactScreen()
+    val size = if (compact) 56.dp else 68.dp
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Box(
-            Modifier.size(size * 1.5f).drawBehind {
-                for (phase in listOf(t, (t + 0.5f) % 1f)) {
-                    val r = (size.toPx() / 2) * (1f + 0.5f * phase)
-                    drawCircle(MorseColors.Accent.copy(alpha = 0.4f * (1f - phase)), r, style = Stroke(2.dp.toPx()))
-                }
-            },
+            Modifier
+                .size(size)
+                .semantics { contentDescription = label }
+                .clip(CircleShape)
+                .background(MorseGradients.Accent)
+                .border(0.6.dp, MorseGradients.Hairline, CircleShape)
+                .clickable(role = Role.Button, onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            Box(
-                Modifier.size(size).clip(CircleShape).background(MorseGradients.Accent)
-                    .border(0.6.dp, MorseGradients.Hairline, CircleShape)
-                    .clickable(role = Role.Button, onClick = onClick),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(painterResource(icon), contentDescription = label, tint = Color.Black, modifier = Modifier.size(size * 0.42f))
-            }
+            Icon(painterResource(icon), contentDescription = null, tint = Color.Black, modifier = Modifier.size(size * 0.42f))
         }
-        Text(label, style = MaterialTheme.typography.button, color = Color.White, textAlign = TextAlign.Center, maxLines = 1)
+        // Small faces need the room for the group chip; the plane and the description still say "send".
+        if (!compact) Text(label, style = MaterialTheme.typography.button, color = Color.White, textAlign = TextAlign.Center, maxLines = 1)
     }
 }
 
 @Composable
 private fun Choice(@DrawableRes icon: Int, label: String, tint: Color, onClick: () -> Unit) {
     val size = if (isCompactScreen()) 58.dp else 66.dp
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(
+        Modifier.clickable(role = Role.Button, onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
         Box(
             Modifier.size(size).clip(CircleShape).background(MorseGradients.of(tint))
-                .border(0.6.dp, MorseGradients.Hairline, CircleShape)
-                .clickable(role = Role.Button, onClick = onClick),
+                .border(0.6.dp, MorseGradients.Hairline, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(painterResource(icon), contentDescription = label, tint = Color.White, modifier = Modifier.size(size * 0.45f))
+            Icon(painterResource(icon), contentDescription = null, tint = Color.White, modifier = Modifier.size(size * 0.45f))
         }
-        Text(label, style = MaterialTheme.typography.caption2, color = Color.White, textAlign = TextAlign.Center, maxLines = 2)
+        Text(label, style = MaterialTheme.typography.caption1, color = Color.White, textAlign = TextAlign.Center, maxLines = 2)
     }
 }
 
 @Composable
-private fun SmallAction(@DrawableRes icon: Int, description: String, tint: Color, onClick: () -> Unit) {
-    Box(
-        Modifier.size(36.dp).clip(CircleShape).background(MorseGradients.Platter)
-            .border(0.6.dp, MorseGradients.Hairline, CircleShape)
-            .clickable(role = Role.Button, onClick = onClick),
-        contentAlignment = Alignment.Center,
+private fun SmallAction(@DrawableRes icon: Int, label: String, tint: Color, onClick: () -> Unit) {
+    Column(
+        Modifier.widthIn(min = 64.dp).clip(RoundedCornerShape(16.dp)).clickable(role = Role.Button, onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(painterResource(icon), contentDescription = description, tint = tint, modifier = Modifier.size(18.dp))
+        Box(
+            Modifier.size(40.dp).clip(CircleShape).background(MorseGradients.Platter)
+                .border(0.6.dp, MorseGradients.Hairline, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(painterResource(icon), contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
+        }
+        Text(label, style = MaterialTheme.typography.caption2, color = MaterialTheme.colors.onSurfaceVariant, maxLines = 1, textAlign = TextAlign.Center)
     }
 }

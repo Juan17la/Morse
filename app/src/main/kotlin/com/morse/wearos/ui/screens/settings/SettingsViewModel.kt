@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.morse.wearos.ai.MorseAssistant
 import com.morse.wearos.core.haptics.HapticPlayer
+import com.morse.wearos.core.haptics.HapticSignal
 import com.morse.wearos.core.morse.MorseCodec
 import com.morse.wearos.data.IdentityRepository
 import com.morse.wearos.data.SettingsRepository
@@ -57,4 +58,6 @@ class SettingsViewModel(
     fun testVibration() {
         haptics.play(MorseCodec.encode("SOS"))
     }
+
+    fun feel(signal: HapticSignal) = haptics.signal(signal)
 }
