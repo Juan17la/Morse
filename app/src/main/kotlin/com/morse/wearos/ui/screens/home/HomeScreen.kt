@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -142,7 +144,7 @@ fun HomeScreen(
                     }
                 }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.Top) {
                 SmallAction(R.drawable.ph_chat_text, stringResource(R.string.home_my_words), MorseColors.Purple, onWords)
                 SmallAction(R.drawable.ph_gear_six, stringResource(R.string.home_settings), MorseColors.Grey, onSettings)
             }
@@ -215,13 +217,18 @@ private fun Choice(@DrawableRes icon: Int, label: String, tint: Color, onClick: 
 }
 
 @Composable
-private fun SmallAction(@DrawableRes icon: Int, description: String, tint: Color, onClick: () -> Unit) {
-    Box(
-        Modifier.size(48.dp).clip(CircleShape).background(MorseGradients.Platter)
-            .border(0.6.dp, MorseGradients.Hairline, CircleShape)
-            .clickable(role = Role.Button, onClick = onClick),
-        contentAlignment = Alignment.Center,
+private fun SmallAction(@DrawableRes icon: Int, label: String, tint: Color, onClick: () -> Unit) {
+    Column(
+        Modifier.widthIn(min = 64.dp).clip(RoundedCornerShape(16.dp)).clickable(role = Role.Button, onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(painterResource(icon), contentDescription = description, tint = tint, modifier = Modifier.size(22.dp))
+        Box(
+            Modifier.size(40.dp).clip(CircleShape).background(MorseGradients.Platter)
+                .border(0.6.dp, MorseGradients.Hairline, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(painterResource(icon), contentDescription = null, tint = tint, modifier = Modifier.size(20.dp))
+        }
+        Text(label, style = MaterialTheme.typography.caption2, color = MaterialTheme.colors.onSurfaceVariant, maxLines = 1, textAlign = TextAlign.Center)
     }
 }

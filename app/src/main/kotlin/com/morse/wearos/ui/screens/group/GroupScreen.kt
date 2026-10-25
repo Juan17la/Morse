@@ -116,7 +116,7 @@ fun GroupScreen(
                 verticalArrangement = Arrangement.Center,
             ) {
                 when (page) {
-                    0 -> CodePage(state, viewModel, onLeft)
+                    0 -> CodePage(state, viewModel, onLeft, onSend)
                     1 -> MessagesPage(state, onSend, onOpenLastMessage)
                     else -> PeoplePage(state) { confirmLeave = true }
                 }
@@ -151,7 +151,7 @@ fun GroupScreen(
 }
 
 @Composable
-private fun CodePage(state: GroupUiState, viewModel: GroupViewModel, onLeft: () -> Unit) {
+private fun CodePage(state: GroupUiState, viewModel: GroupViewModel, onLeft: () -> Unit, onSend: () -> Unit) {
     AccessCodeHeader(code = state.group?.code, connection = state.state)
     when (val connection = state.state) {
         is ConnectionState.Error -> {
@@ -174,19 +174,9 @@ private fun CodePage(state: GroupUiState, viewModel: GroupViewModel, onLeft: () 
             modifier = Modifier.padding(top = 12.dp),
         )
     }
-    if (state.state == ConnectionState.Connected) SwipeHint()
-}
-
-/** Points at the next page, where Send lives; only the code page needs it. */
-@Composable
-private fun SwipeHint() {
-    Row(
-        modifier = Modifier.padding(top = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        Icon(painterResource(R.drawable.ph_caret_up), contentDescription = null, tint = MaterialTheme.colors.onSurfaceVariant, modifier = Modifier.size(14.dp))
-        Text(stringResource(R.string.group_swipe_hint), style = MaterialTheme.typography.caption2, color = MaterialTheme.colors.onSurfaceVariant)
+    if (state.state == ConnectionState.Connected) {
+        Spacer(Modifier.height(10.dp))
+        PillButton(stringResource(R.string.group_send), R.drawable.ph_paper_plane_tilt, MorseColors.Accent, onSend)
     }
 }
 

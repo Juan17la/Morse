@@ -102,7 +102,6 @@
     <string name="group_leave_body">You will stop feeling its messages.</string>
     <string name="group_leave_host_body">You are the host: the group ends for everyone.</string>
     <string name="group_start_over">Start over</string>
-    <string name="group_swipe_hint">Swipe up to send</string>
     <string name="send_not_connected_hint">Tap to create or join one</string>
     <string name="sent_title">Sent “%1$s”</string>
     <string name="send_failed_title">“%1$s” wasn\'t sent</string>
