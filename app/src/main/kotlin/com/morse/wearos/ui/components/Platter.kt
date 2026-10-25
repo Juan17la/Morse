@@ -1,8 +1,8 @@
 package com.morse.wearos.ui.components
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,28 +13,31 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.ListHeader
@@ -45,6 +48,7 @@ import com.morse.wearos.ui.theme.MorseColors
 import com.morse.wearos.ui.theme.MorseGradients
 import com.morse.wearos.ui.theme.avatarColor
 import com.morse.wearos.ui.theme.morseSpring
+import com.morse.wearos.ui.theme.rememberReduceMotion
 
 private val PlatterShape = RoundedCornerShape(24.dp)
 private val IconSize = 30.dp
@@ -52,42 +56,44 @@ private val IconSize = 30.dp
 /**
  * The watchOS list cell: a softly lit platter with a glossy tinted glyph. [accent] paints it with
  * the sunrise gradient for the screen's main action. Pressing shrinks it on a spring instead of
- * a ripple, and it rises into place the first time it is composed.
+ * a ripple,.
  * [avatar] replaces the glyph with the name's initial, for people.
  */
 @Composable
 fun Platter(
     title: String,
-    onClick: () -> Unit,
+    /** Null makes a read-only row: no press feedback and no button role. */
+    onClick: (() -> Unit)?,
     subtitle: String? = null,
     @DrawableRes icon: Int? = null,
     iconTint: Color = MorseColors.Accent,
     accent: Boolean = false,
     enabled: Boolean = true,
     monospaceSubtitle: Boolean = false,
+    /** Drawn as real dots and dashes under the title; takes the place of [subtitle]. */
+    morse: String? = null,
     avatar: String? = null,
 ) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
-    val pressScale by animateFloatAsState(if (pressed) 0.94f else 1f, morseSpring(), label = "press")
-    val entrance = remember { Animatable(0f) }
-    LaunchedEffect(Unit) { entrance.animateTo(1f, morseSpring()) }
-    val rise = with(LocalDensity.current) { 14.dp.toPx() }
+    val reduceMotion = rememberReduceMotion()
+    val pressScale by animateFloatAsState(if (pressed && !reduceMotion) 0.96f else 1f, morseSpring(), label = "press")
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .graphicsLayer {
-                val s = pressScale * (0.92f + 0.08f * entrance.value)
-                scaleX = s
-                scaleY = s
-                translationY = (1f - entrance.value) * rise
-                alpha = entrance.value.coerceIn(0f, 1f) * if (enabled) 1f else 0.38f
+                scaleX = pressScale
+                scaleY = pressScale
+                alpha = if (enabled) 1f else 0.38f
             }
             .clip(PlatterShape)
             .background(if (accent) MorseGradients.Accent else MorseGradients.Platter)
             .border(0.6.dp, MorseGradients.Hairline, PlatterShape)
-            .clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick)
+            .then(
+                if (onClick == null) Modifier
+                else Modifier.clickable(interaction, indication = null, enabled = enabled, role = Role.Button, onClick = onClick),
+            )
             .heightIn(min = 56.dp)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -105,7 +111,9 @@ fun Platter(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (subtitle != null) {
+            if (morse != null) {
+                MorseGlyphs(morse, color = if (accent) Color.Black.copy(alpha = 0.62f) else MorseColors.Secondary, modifier = Modifier.padding(top = 4.dp))
+            } else if (subtitle != null) {
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.caption2,
@@ -115,6 +123,27 @@ fun Platter(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+        }
+    }
+}
+
+/**
+ * The Morse as it feels: circles for dots, capsules for dashes, a wider gap between letters.
+ * Left-aligned and cut off at the edge, since custom words can run long.
+ */
+@Composable
+fun MorseGlyphs(morse: String, color: Color, modifier: Modifier = Modifier, dot: Dp = 4.dp) {
+    Canvas(modifier.fillMaxWidth().height(dot)) {
+        val d = dot.toPx()
+        var x = 0f
+        for (c in morse) {
+            when (c) {
+                '.' -> { drawCircle(color, d / 2, Offset(x + d / 2, d / 2)); x += d * 1.6f }
+                '-' -> { drawRoundRect(color, Offset(x, 0f), Size(d * 3, d), CornerRadius(d / 2)); x += d * 4.6f }
+                ' ' -> x += d * 1.2f
+                else -> x += d * 3f
+            }
+            if (x > size.width) break
         }
     }
 }
@@ -139,7 +168,7 @@ private fun PlatterIcon(@DrawableRes icon: Int, accent: Boolean, tint: Color) {
 
 /** A contact-style circle with the name's initial, tinted per name unless [tint] says otherwise. */
 @Composable
-fun Avatar(name: String, tint: Color = avatarColor(name), size: androidx.compose.ui.unit.Dp = IconSize) {
+fun Avatar(name: String, tint: Color = avatarColor(name), size: Dp = IconSize) {
     Box(
         modifier = Modifier.size(size).clip(CircleShape).background(MorseGradients.of(tint)),
         contentAlignment = Alignment.Center,

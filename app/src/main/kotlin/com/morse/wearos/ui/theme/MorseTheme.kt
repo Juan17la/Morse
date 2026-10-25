@@ -2,7 +2,10 @@ package com.morse.wearos.ui.theme
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import android.provider.Settings
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
@@ -26,7 +29,7 @@ object MorseColors {
     val Purple = Color(0xFFBF5AF2)
     val Indigo = Color(0xFF5E5CE6)
     val Pink = Color(0xFFFF375F)
-    val Grey = Color(0xFF636366)
+    val Grey = Color(0xFF7C7C80)
     val Red = Color(0xFFFF453A)
 
     /** Avatar tints, picked per name so each member keeps a colour across screens. */
@@ -83,4 +86,11 @@ private val typography = Typography().run {
 @Composable
 fun MorseTheme(content: @Composable () -> Unit) {
     MaterialTheme(colors = colors, typography = typography, content = content)
+}
+
+/** True when the system "Remove animations" (animator scale 0) is on; decorative motion should then be skipped. */
+@Composable
+fun rememberReduceMotion(): Boolean {
+    val resolver = LocalContext.current.contentResolver
+    return remember { Settings.Global.getFloat(resolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f }
 }

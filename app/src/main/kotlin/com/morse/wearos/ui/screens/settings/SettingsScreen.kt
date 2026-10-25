@@ -21,6 +21,8 @@ import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ToggleChip
 import androidx.wear.compose.material.ToggleChipDefaults
 import com.morse.wearos.R
+import com.morse.wearos.core.haptics.HapticSignal
+import com.morse.wearos.core.morse.MorseCodec
 import com.morse.wearos.data.AppLanguage
 import com.morse.wearos.data.TransportMode
 import com.morse.wearos.di.containerViewModel
@@ -32,6 +34,7 @@ import com.morse.wearos.ui.theme.MorseColors
 
 @Composable
 fun SettingsScreen(
+    onLearn: () -> Unit,
     viewModel: SettingsViewModel = containerViewModel {
         SettingsViewModel(it.identityRepository, it.settingsRepository, it.hapticPlayer, it.assistant)
     },
@@ -50,7 +53,6 @@ fun SettingsScreen(
     )
 
     MorseScaffold(title = stringResource(R.string.settings_title), glow = MorseColors.Indigo) {
-
         item {
             Platter(
                 title = stringResource(R.string.settings_name),
@@ -71,9 +73,57 @@ fun SettingsScreen(
             }
         }
 
+        item {
+            Platter(
+                title = stringResource(R.string.learn_title),
+                subtitle = stringResource(R.string.learn_subtitle),
+                icon = R.drawable.ph_sparkle,
+                iconTint = MorseColors.Teal,
+                onClick = onLearn,
+            )
+        }
+
+        // Feeling one is the fastest way to understand what the app does.
+        item {
+            Platter(
+                title = stringResource(R.string.settings_test_vibration),
+                morse = MorseCodec.encode("SOS"),
+                icon = R.drawable.ph_vibrate,
+                iconTint = MorseColors.Accent,
+                onClick = viewModel::testVibration,
+            )
+        }
+        item { SectionHeader(stringResource(R.string.settings_signals_header)) }
+        items(SIGNALS.size) { index ->
+            val (signal, label, tint) = SIGNALS[index]
+            Platter(
+                title = stringResource(label),
+                icon = R.drawable.ph_vibrate,
+                iconTint = tint,
+                onClick = { viewModel.feel(signal) },
+            )
+        }
+        item { SectionHeader(stringResource(R.string.settings_language_header)) }
+        items(AppLanguage.TAGS.size) { index ->
+            val tag = AppLanguage.TAGS[index]
+            RadioChip(stringResource(languageLabel(tag)), language == tag) {
+                AppLanguage.set(context, tag)
+                (context as? Activity)?.recreate()
+            }
+        }
+        item {
+            Text(
+                text = stringResource(if (state.aiOnline) R.string.settings_ai_online else R.string.settings_ai_offline),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                style = MaterialTheme.typography.caption2,
+                color = MaterialTheme.colors.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+        }
+
         // Demo builds always simulate, so the connection choice would do nothing there.
         if (!IS_DEMO) {
-            item { SectionHeader(stringResource(R.string.settings_transport_header)) }
+            item { SectionHeader(stringResource(R.string.settings_developer_header)) }
             items(TransportMode.entries.size) { index ->
                 val mode = TransportMode.entries[index]
                 RadioChip(stringResource(mode.labelRes()), state.transportMode == mode) { viewModel.setTransportMode(mode) }
@@ -90,36 +140,16 @@ fun SettingsScreen(
                 }
             }
         }
-
-        item { SectionHeader(stringResource(R.string.settings_language_header)) }
-        items(AppLanguage.TAGS.size) { index ->
-            val tag = AppLanguage.TAGS[index]
-            RadioChip(stringResource(languageLabel(tag)), language == tag) {
-                AppLanguage.set(context, tag)
-                (context as? Activity)?.recreate()
-            }
-        }
-
-        item { SectionHeader(stringResource(R.string.settings_diagnostics_header)) }
-        item {
-            Platter(
-                title = stringResource(R.string.settings_test_vibration),
-                icon = R.drawable.ph_vibrate,
-                iconTint = MorseColors.Accent,
-                onClick = viewModel::testVibration,
-            )
-        }
-        item {
-            Text(
-                text = stringResource(if (state.aiOnline) R.string.settings_ai_online else R.string.settings_ai_offline),
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                style = MaterialTheme.typography.caption2,
-                color = MaterialTheme.colors.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
-        }
     }
 }
+
+private val SIGNALS = listOf(
+    Triple(HapticSignal.Joined, R.string.signal_joined, MorseColors.Green),
+    Triple(HapticSignal.Sent, R.string.signal_sent, MorseColors.Blue),
+    Triple(HapticSignal.Failed, R.string.signal_failed, MorseColors.Red),
+    Triple(HapticSignal.MemberLeft, R.string.signal_member_left, MorseColors.Purple),
+    Triple(HapticSignal.Lost, R.string.signal_lost, MorseColors.Grey),
+)
 
 @Composable
 private fun RadioChip(label: String, selected: Boolean, onSelect: () -> Unit) {
