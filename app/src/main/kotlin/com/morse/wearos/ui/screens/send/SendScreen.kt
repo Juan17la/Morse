@@ -85,8 +85,7 @@ fun WordChip(
 ) {
     Platter(
         title = word,
-        subtitle = MorseCodec.encode(word),
-        monospaceSubtitle = true,
+        morse = MorseCodec.encode(word),
         icon = icon,
         iconTint = iconTint,
         accent = accent,

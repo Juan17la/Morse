@@ -76,8 +76,7 @@ fun SettingsScreen(
         item {
             Platter(
                 title = stringResource(R.string.settings_test_vibration),
-                subtitle = MorseCodec.encode("SOS"),
-                monospaceSubtitle = true,
+                morse = MorseCodec.encode("SOS"),
                 icon = R.drawable.ph_vibrate,
                 iconTint = MorseColors.Accent,
                 onClick = viewModel::testVibration,

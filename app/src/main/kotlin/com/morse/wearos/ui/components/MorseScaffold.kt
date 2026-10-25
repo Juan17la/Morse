@@ -79,6 +79,7 @@ fun MorseScaffold(
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
+                item { MorseGlyphs("-.-", color = glow.copy(alpha = 0.7f), modifier = Modifier.padding(start = if (round) screenPct(0.38f) else 16.dp)) }
             }
             content()
         }

@@ -138,8 +138,7 @@ fun IncomingScreen(
                 item {
                     Platter(
                         title = stringResource(R.string.incoming_pass_on, current.word),
-                        subtitle = current.morse,
-                        monospaceSubtitle = true,
+                        morse = current.morse,
                         icon = R.drawable.ph_paper_plane_tilt,
                         iconTint = MorseColors.Green,
                         onClick = { reply(current.word) },

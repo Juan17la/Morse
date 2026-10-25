@@ -214,8 +214,7 @@ private fun MessagesPage(state: GroupUiState, onSend: () -> Unit, onOpenLastMess
         state.lastMessage?.let { last ->
             Platter(
                 title = "${shortName(last.senderName)}: ${last.word}",
-                subtitle = last.morse,
-                monospaceSubtitle = true,
+                morse = last.morse,
                 icon = R.drawable.ph_vibrate,
                 iconTint = MorseColors.Blue,
                 onClick = onOpenLastMessage,

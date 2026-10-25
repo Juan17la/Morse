@@ -2,6 +2,7 @@ package com.morse.wearos.ui.components
 
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,6 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -32,6 +37,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.ListHeader
@@ -64,6 +70,8 @@ fun Platter(
     accent: Boolean = false,
     enabled: Boolean = true,
     monospaceSubtitle: Boolean = false,
+    /** Drawn as real dots and dashes under the title; takes the place of [subtitle]. */
+    morse: String? = null,
     avatar: String? = null,
 ) {
     val interaction = remember { MutableInteractionSource() }
@@ -103,7 +111,9 @@ fun Platter(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (subtitle != null) {
+            if (morse != null) {
+                MorseGlyphs(morse, color = if (accent) Color.Black.copy(alpha = 0.62f) else MorseColors.Secondary, modifier = Modifier.padding(top = 4.dp))
+            } else if (subtitle != null) {
                 Text(
                     text = subtitle,
                     style = MaterialTheme.typography.caption2,
@@ -113,6 +123,27 @@ fun Platter(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+        }
+    }
+}
+
+/**
+ * The Morse as it feels: circles for dots, capsules for dashes, a wider gap between letters.
+ * Left-aligned and cut off at the edge, since custom words can run long.
+ */
+@Composable
+fun MorseGlyphs(morse: String, color: Color, modifier: Modifier = Modifier, dot: Dp = 4.dp) {
+    Canvas(modifier.fillMaxWidth().height(dot)) {
+        val d = dot.toPx()
+        var x = 0f
+        for (c in morse) {
+            when (c) {
+                '.' -> { drawCircle(color, d / 2, Offset(x + d / 2, d / 2)); x += d * 1.6f }
+                '-' -> { drawRoundRect(color, Offset(x, 0f), Size(d * 3, d), CornerRadius(d / 2)); x += d * 4.6f }
+                ' ' -> x += d * 1.2f
+                else -> x += d * 3f
+            }
+            if (x > size.width) break
         }
     }
 }
@@ -137,7 +168,7 @@ private fun PlatterIcon(@DrawableRes icon: Int, accent: Boolean, tint: Color) {
 
 /** A contact-style circle with the name's initial, tinted per name unless [tint] says otherwise. */
 @Composable
-fun Avatar(name: String, tint: Color = avatarColor(name), size: androidx.compose.ui.unit.Dp = IconSize) {
+fun Avatar(name: String, tint: Color = avatarColor(name), size: Dp = IconSize) {
     Box(
         modifier = Modifier.size(size).clip(CircleShape).background(MorseGradients.of(tint)),
         contentAlignment = Alignment.Center,
