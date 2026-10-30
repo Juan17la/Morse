@@ -14,8 +14,8 @@ android {
         applicationId = "com.morse.wearos"
         minSdk = 30
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "1.1.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Free key from https://aistudio.google.com/apikey, set GEMINI_API_KEY=... in local.properties
