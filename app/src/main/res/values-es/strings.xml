@@ -8,7 +8,6 @@
     <string name="action_cancel">Cancelar</string>
     <string name="action_delete">Eliminar</string>
     <string name="action_retry">Reintentar</string>
-    <string name="action_ok">Aceptar</string>
 
     <string name="permission_wifi_title">Permiso necesario</string>
     <string name="permission_wifi_rationale">Permite Dispositivos cercanos para que este reloj encuentre a los demás. Puedes activarlo en Ajustes.</string>

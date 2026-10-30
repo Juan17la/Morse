@@ -10,7 +10,6 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_delete">Delete</string>
     <string name="action_retry">Retry</string>
-    <string name="action_ok">OK</string>
 
     <string name="permission_wifi_title">Permission needed</string>
     <string name="permission_wifi_rationale">Allow Nearby devices so this watch can find the others. You can turn it on in Settings.</string>
