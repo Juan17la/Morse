@@ -9,6 +9,8 @@ import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Scaffold
@@ -218,7 +220,7 @@ private fun MessagesPage(state: GroupUiState, onSend: () -> Unit, onOpenLastMess
 private fun PillButton(text: String, @DrawableRes icon: Int, tint: Color, onClick: () -> Unit) {
     Row(
         Modifier.clip(CircleShape).background(MorseGradients.Platter).border(0.6.dp, MorseGradients.Hairline, CircleShape)
-            .clickable(role = Role.Button, onClick = onClick).heightIn(min = 40.dp).padding(horizontal = 14.dp),
+            .clickable(role = Role.Button, onClick = onClick).heightIn(min = 48.dp).padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
@@ -229,7 +231,12 @@ private fun PillButton(text: String, @DrawableRes icon: Int, tint: Color, onClic
 
 @Composable
 private fun PageDots(count: Int, current: Int, modifier: Modifier) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    val position = stringResource(R.string.group_page_position, current + 1, count)
+    Column(
+        modifier.semantics { contentDescription = position },
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         repeat(count) { i ->
             Box(Modifier.size(if (i == current) 8.dp else 5.dp).clip(CircleShape).background(if (i == current) Color.White else MorseColors.Grey))
         }
@@ -302,16 +309,21 @@ private fun StatusDot(connection: ConnectionState) {
         label = "status",
     )
     val breathing = !rememberReduceMotion() && (connection == ConnectionState.Creating || connection == ConnectionState.Joining)
-    val pulse by rememberInfiniteTransition(label = "pulse").animateFloat(
-        initialValue = 1f,
-        targetValue = 0.25f,
-        animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
-        label = "pulse",
-    )
+    // Only run the infinite transition while it shows; otherwise it ticks every frame on a connected watch.
+    val pulse = if (breathing) {
+        rememberInfiniteTransition(label = "pulse").animateFloat(
+            initialValue = 1f,
+            targetValue = 0.25f,
+            animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
+            label = "pulse",
+        )
+    } else {
+        null
+    }
     Box(
         Modifier
             .size(7.dp)
-            .graphicsLayer { alpha = if (breathing) pulse else 1f }
+            .graphicsLayer { alpha = pulse?.value ?: 1f }
             .clip(CircleShape)
             .background(color),
     )

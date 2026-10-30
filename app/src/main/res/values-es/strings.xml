@@ -8,7 +8,6 @@
     <string name="action_cancel">Cancelar</string>
     <string name="action_delete">Eliminar</string>
     <string name="action_retry">Reintentar</string>
-    <string name="action_ok">Aceptar</string>
 
     <string name="permission_wifi_title">Permiso necesario</string>
     <string name="permission_wifi_rationale">Permite Dispositivos cercanos para que este reloj encuentre a los demás. Puedes activarlo en Ajustes.</string>
@@ -97,6 +96,7 @@
     <string name="group_leave_body">Dejarás de sentir sus mensajes.</string>
     <string name="group_leave_host_body">Eres el anfitrión: el grupo termina para todos.</string>
     <string name="group_start_over">Empezar de nuevo</string>
+    <string name="group_page_position">Página %1$d de %2$d, desliza arriba o abajo</string>
     <string name="send_not_connected_hint">Toca para crear o unirte a uno</string>
     <string name="sent_title">Enviado “%1$s”</string>
     <string name="send_failed_title">“%1$s” no se envió</string>

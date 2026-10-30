@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.wear.compose.navigation.currentBackStackEntryAsState
 import com.morse.wearos.core.morse.MorseTiming
 import com.morse.wearos.ui.components.PulseBorder
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.wear.compose.navigation.SwipeDismissableNavHost
@@ -42,6 +43,7 @@ fun MorseNavHost() {
     // The full message page only takes over on the first page, on itself, or when the app is out of sight.
     val takeover by rememberUpdatedState(route?.destination?.route.let { it == Routes.HOME || it == Routes.INCOMING })
     var buzzing by remember { mutableStateOf(false) }
+    var edgePulse by remember { mutableStateOf<Job?>(null) }
 
     LaunchedEffect(session) {
         session.received.collect { message ->
@@ -49,7 +51,9 @@ fun MorseNavHost() {
                 navController.navigate(Routes.INCOMING) { launchSingleTop = true }
             } else {
                 // Don't pull the user out of what they're doing: mirror the buzz on the screen edge instead.
-                launch {
+                // A newer message replaces the older pulse so two loops never fight over the border.
+                edgePulse?.cancel()
+                edgePulse = launch {
                     for (step in MorseTiming.steps(message.morse)) {
                         buzzing = step.on
                         delay(step.durationMs)
@@ -99,7 +103,8 @@ fun MorseNavHost() {
         composable(Routes.CONDENSE) { entry ->
             CondenseScreen(
                 text = entry.arguments?.getString(Routes.CONDENSE_ARG).orEmpty(),
-                onSent = { navController.popBackStack(Routes.GROUP, inclusive = false) },
+                // Back to wherever Send was opened from (Home or Group); Group may not be on the stack.
+                onSent = { navController.popBackStack(Routes.SEND, inclusive = true) },
             )
         }
         composable(Routes.INCOMING) { IncomingScreen(onReplied = { navController.popBackStack() }) }

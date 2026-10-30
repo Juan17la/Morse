@@ -16,6 +16,7 @@ android {
         targetSdk = 35
         versionCode = 2
         versionName = "1.1"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Free key from https://aistudio.google.com/apikey, set GEMINI_API_KEY=... in local.properties
         // (gitignored). Empty means the AI features use their offline fallback.
@@ -70,6 +71,13 @@ android {
         }
     }
 
+    // The in-app language switch needs every locale on the device; Play would otherwise split them out.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
@@ -95,4 +103,12 @@ dependencies {
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+
+    // On-watch smoke test. Espresso 3.7+ is needed for input injection on API 34+ watches.
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test:runner:1.7.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
