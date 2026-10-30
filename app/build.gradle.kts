@@ -70,6 +70,13 @@ android {
         }
     }
 
+    // The in-app language switch needs every locale on the device; Play would otherwise split them out.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
