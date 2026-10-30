@@ -9,6 +9,8 @@ import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Scaffold
@@ -229,7 +231,12 @@ private fun PillButton(text: String, @DrawableRes icon: Int, tint: Color, onClic
 
 @Composable
 private fun PageDots(count: Int, current: Int, modifier: Modifier) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    val position = stringResource(R.string.group_page_position, current + 1, count)
+    Column(
+        modifier.semantics { contentDescription = position },
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         repeat(count) { i ->
             Box(Modifier.size(if (i == current) 8.dp else 5.dp).clip(CircleShape).background(if (i == current) Color.White else MorseColors.Grey))
         }
