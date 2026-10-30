@@ -99,7 +99,8 @@ fun MorseNavHost() {
         composable(Routes.CONDENSE) { entry ->
             CondenseScreen(
                 text = entry.arguments?.getString(Routes.CONDENSE_ARG).orEmpty(),
-                onSent = { navController.popBackStack(Routes.GROUP, inclusive = false) },
+                // Back to wherever Send was opened from (Home or Group); Group may not be on the stack.
+                onSent = { navController.popBackStack(Routes.SEND, inclusive = true) },
             )
         }
         composable(Routes.INCOMING) { IncomingScreen(onReplied = { navController.popBackStack() }) }
