@@ -302,16 +302,21 @@ private fun StatusDot(connection: ConnectionState) {
         label = "status",
     )
     val breathing = !rememberReduceMotion() && (connection == ConnectionState.Creating || connection == ConnectionState.Joining)
-    val pulse by rememberInfiniteTransition(label = "pulse").animateFloat(
-        initialValue = 1f,
-        targetValue = 0.25f,
-        animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
-        label = "pulse",
-    )
+    // Only run the infinite transition while it shows; otherwise it ticks every frame on a connected watch.
+    val pulse = if (breathing) {
+        rememberInfiniteTransition(label = "pulse").animateFloat(
+            initialValue = 1f,
+            targetValue = 0.25f,
+            animationSpec = infiniteRepeatable(tween(700), RepeatMode.Reverse),
+            label = "pulse",
+        )
+    } else {
+        null
+    }
     Box(
         Modifier
             .size(7.dp)
-            .graphicsLayer { alpha = if (breathing) pulse else 1f }
+            .graphicsLayer { alpha = pulse?.value ?: 1f }
             .clip(CircleShape)
             .background(color),
     )
