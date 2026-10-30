@@ -218,7 +218,7 @@ private fun MessagesPage(state: GroupUiState, onSend: () -> Unit, onOpenLastMess
 private fun PillButton(text: String, @DrawableRes icon: Int, tint: Color, onClick: () -> Unit) {
     Row(
         Modifier.clip(CircleShape).background(MorseGradients.Platter).border(0.6.dp, MorseGradients.Hairline, CircleShape)
-            .clickable(role = Role.Button, onClick = onClick).heightIn(min = 40.dp).padding(horizontal = 14.dp),
+            .clickable(role = Role.Button, onClick = onClick).heightIn(min = 48.dp).padding(horizontal = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
