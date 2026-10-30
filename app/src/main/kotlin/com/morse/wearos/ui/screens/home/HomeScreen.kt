@@ -26,6 +26,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.ChipDefaults
@@ -101,12 +102,14 @@ fun HomeScreen(
     }
 
     val current = group
+    val round = LocalConfiguration.current.isScreenRound
     Scaffold(timeText = { TimeText() }) {
         // Nothing until we know whether this is the first launch, so the welcome never flashes Home first.
         if (welcomeSeen != true) return@Scaffold
         TopGlow(if (current != null) MorseColors.Green else MorseColors.Accent)
         Column(
-            modifier = Modifier.fillMaxSize().padding(top = screenPct(0.14f), bottom = screenPct(0.05f)),
+            // Round faces narrow sharply at the bottom; lift the shortcuts so their labels stay inside the bezel.
+            modifier = Modifier.fillMaxSize().padding(top = screenPct(0.14f), bottom = screenPct(if (round) 0.1f else 0.05f)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
