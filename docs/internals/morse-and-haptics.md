@@ -154,7 +154,7 @@ steps, turning the ring on and off.
 
 ## Verified by tests
 
-The codec and timing have their own unit tests: the table, accents and Ñ, the
+The codec and timing have their own unit tests: letters, digits, case, accents, the
 dropping of unsupported characters, word separators, gap merging, the
 waveform's leading zero, and the symbol indexes. A micro-benchmark confirms
 encoding and timing a word take about one to two microseconds on a desktop.
