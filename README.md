@@ -225,6 +225,10 @@ without three watches is in [Demo and emulators](docs/development/demo-and-emula
 | Understand how it works inside | [Documentation index](docs/README.md) |
 | Build it, test it or demo it | [Development](docs/README.md#development) |
 
+## License
+
+[MIT](LICENSE)
+
 <div align="center">
 <br />
 <sub>Made by Juan Diego López Arias</sub>
